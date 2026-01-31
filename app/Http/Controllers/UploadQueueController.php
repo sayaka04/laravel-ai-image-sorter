@@ -6,8 +6,7 @@ use App\Models\UploadQueue;
 use App\Models\Album;
 use App\Enums\UploadStatus;
 use App\AI\AIConfig;
-use App\Jobs\RunLLMTextJob;
-use App\Jobs\RunLLMVisionJob;
+use App\Jobs\ProcessImageAiVisionJob;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -111,7 +110,7 @@ class UploadQueueController extends AIConfig
                 Log::info('categoryContext: ' . $categoryContext);
 
 
-                RunLLMVisionJob::dispatch($model, $prompt, $base64Image, $categoryContext, $upload_queue, $cacheKey)
+                ProcessImageAiVisionJob::dispatch($model, $prompt, $base64Image, $categoryContext, $upload_queue, $cacheKey)
                     ->onQueue('vision');
             }
         });

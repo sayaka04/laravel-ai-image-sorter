@@ -111,4 +111,68 @@ class RunLLMVisionJob extends AIConfig implements ShouldQueue
             now()->addMinutes(60)
         );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Private Helper Methods
+    |--------------------------------------------------------------------------
+    |
+    | SEPARATION OF CONCERNS
+    | These methods are used internally within the job to keep the code organized
+    | and maintainable.
+    |
+    */
+    private function updateStatus(UploadStatus $status): void
+    {
+        $this->uploadQueue->update(['status' => $status->value]);
+    }
+
+    private function finalizeQueueStatus(string $prettyResponse): void
+    {
+        Cache::put($this->cacheKey, $prettyResponse, now()->addMinutes(30));
+        $this->updateStatus(UploadStatus::COMPLETED);
+        Log::info("LLM Response Cached for Key: {$this->cacheKey}");
+    }
+
+    private function transferImageToCategoryFolder(Category $category, string $innerJson): void
+    {
+        $user = $this->uploadQueue->album->user;
+        $album = $this->uploadQueue->album;
+
+        // BUG FIX: Use the category name provided by the AI/Method argument
+        $categoryName = $category->category_name;
+
+        $destinationPath = "users/{$user->id}/{$album->album_name}/{$categoryName}";
+
+        if (!Storage::disk('public')->exists($destinationPath)) {
+            Storage::disk('public')->makeDirectory($destinationPath);
+        }
+
+        $newFilename = now()->format('Y-m-d') . '_' . basename($this->uploadQueue->original_filename);
+        $from = $this->uploadQueue->file_path;
+        $to = "{$destinationPath}/{$newFilename}";
+
+        if (Storage::disk('public')->copy($from, $to)) {
+            \App\Models\File::create([
+                'file_name' => $newFilename,
+                'file_path' => $to,
+                'category_id' => $category->id,
+                'raw_ai_response' => $innerJson,
+            ]);
+
+            Storage::disk('public')->delete($from);
+            Log::info("File archived to: {$to}");
+        }
+    }
+
+    private function reportError(\Exception $e, string $title = 'RunLLMTextJob failed'): void
+    {
+        Log::error("{$title}: " . $e->getMessage());
+
+        Cache::put(
+            $this->cacheKey,
+            json_encode(['error' => true, 'message' => $e->getMessage()], JSON_PRETTY_PRINT),
+            now()->addMinutes(30)
+        );
+    }
 }
