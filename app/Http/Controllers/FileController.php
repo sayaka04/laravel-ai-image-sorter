@@ -11,28 +11,56 @@ class FileController extends Controller
 {
     public function index(Request $request)
     {
-        $query = File::query();
+        $query = File::query()->whereHas('category.album', function ($q) use ($request) {
+            $q->where('user_id', $request->user()->id);
+        });
 
-        // Filter by category if provided
-        if ($request->has('category_id')) {
-            $query->where('category_id', $request->category_id);
+        // Search by Filename
+        $query->when($request->filled('search'), function ($q) use ($request) {
+            $q->where('file_name', 'like', '%' . $request->search . '%');
+        });
 
-            // Security: Ensure the category belongs to the user
-            $category = Category::find($request->category_id);
-            if ($category && $category->album->user_id !== $request->user()->id) {
-                abort(403);
-            }
-        } else {
-            // Otherwise show all files belonging to user's albums
-            $query->whereHas('category.album', function ($q) use ($request) {
-                $q->where('user_id', $request->user()->id);
+        // Filter by Album
+        $query->when($request->filled('album_id'), function ($q) use ($request) {
+            $q->whereHas('category', function ($sq) use ($request) {
+                $sq->where('album_id', $request->album_id);
             });
-        }
+        });
 
-        // FIX: Assign pagination result to variable
-        $files = $query->with('category.album')->latest()->paginate(20);
+        // Filter by Category
+        $query->when($request->filled('category_id'), function ($q) use ($request) {
+            $q->where('category_id', $request->category_id);
+        });
 
-        return view('files.index', compact('files'));
+        // Date Filters
+        $query->when($request->filled('from'), function ($q) use ($request) {
+            $q->whereDate('created_at', '>=', $request->from);
+        });
+
+        $query->when($request->filled('to'), function ($q) use ($request) {
+            $q->whereDate('created_at', '<=', $request->to);
+        });
+
+        $files = $query->with('category.album')->latest()->paginate(20)->withQueryString();
+
+        // Data for Filter Dropdowns
+        $albums = \App\Models\Album::where('user_id', $request->user()->id)->orderBy('album_name')->get();
+
+        // Optional: Filter categories based on selected album if applicable
+        $categories = \App\Models\Category::whereHas('album', function ($q) use ($request) {
+            $q->where('user_id', $request->user()->id);
+            if ($request->filled('album_id')) {
+                $q->where('id', $request->album_id);
+            }
+        })->orderBy('category_name')->get();
+
+        return view('files.index', [
+            'files' => $files,
+            'albums' => $albums,
+            'categories' => $categories,
+            'title'   => 'SmartSorter AI - Files',
+            'header_name' => 'Files',
+        ]);
     }
 
     // "Create" is typically handled by the UploadQueue/AI Worker, 
@@ -44,7 +72,11 @@ class FileController extends Controller
             $q->where('user_id', request()->user()->id);
         })->with('album')->get();
 
-        return view('files.create', compact('categories'));
+        return view('files.create', [
+            'categories' => $categories,
+            'title'   => 'SmartSorter AI - Create File',
+            'header_name' => 'Files/Create',
+        ]);
     }
 
     public function store(Request $request)

@@ -10,7 +10,7 @@
 
 </head>
 
-<body class="bg-gray-50 flex h-screen overflow-hidden">
+<body class="flex h-screen overflow-hidden bg-slate-950 text-slate-400 font-sans">
 
     @include('partials.sidebar')
 
@@ -18,161 +18,184 @@
 
         @include('partials.navbar')
 
-        <main class="flex-1 overflow-y-auto p-6">
+        <div class="flex-1 min-h-0 flex flex-col gap-6 p-4 md:p-6 lg:p-8 overflow-y-auto w-full">
 
-            <section class="max-w-2xl mx-auto py-10">
-                <form action="{{ route('upload_queues.store') }}" method="POST" enctype="multipart/form-data" class="space-y-10">
-                    @csrf
-
-                    <div class="flex justify-between items-center mb-6">
-                        <div class="flex items-center gap-3">
-                            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-[10px] font-bold text-white uppercase tracking-tighter">01</span>
-                            <h2 class="text-sm font-bold text-slate-800 uppercase tracking-widest">Configure Upload</h2>
+            <section>
+                <div class="flex flex-col gap-4 shrink-0">
+                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl md:text-3xl font-light text-white tracking-tight">Add to queue</h1>
+                            <p class="text-sm text-slate-500 mt-1">Upload images to an existing album to queue them for sorting</p>
                         </div>
-                        <a href="{{ route('upload_queues.index') }}" class="text-[10px] font-bold text-slate-400 hover:text-rose-500 uppercase tracking-widest transition-colors">Cancel Session</a>
-                    </div>
 
-                    <div class="relative group">
-                        <label for="album_id" class="block text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">
-                            Target Album
-                        </label>
-                        <div class="relative">
-                            <select id="album_id" name="album_id"
-                                class="block w-full px-5 py-4 bg-white border border-slate-200 rounded-2xl text-slate-900 text-sm font-semibold appearance-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all cursor-pointer shadow-sm">
-                                @foreach($albums as $album)
-                                <option value="{{ $album->id }}" {{ (isset($selectedAlbumId) && $selectedAlbumId == $album->id) ? 'selected' : '' }}>
-                                    {{ $album->album_name }}
-                                </option>
-                                @endforeach
-                            </select>
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-5 pointer-events-none text-slate-400">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <a href="{{ route('albums.create') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-900 border border-slate-700 hover:border-slate-500 text-white text-xs font-medium rounded transition-all whitespace-nowrap decoration-none">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                 </svg>
-                            </div>
+                                Add New Album
+                            </a>
                         </div>
-                        @error('album_id')
-                        <p class="text-rose-500 text-xs mt-2 ml-1 font-medium">{{ $message }}</p>
-                        @enderror
                     </div>
-
-                    <div class="space-y-4">
-                        <label class="block text-xs font-black text-slate-500 uppercase tracking-[0.2em] mb-3 ml-1">
-                            Media Assets
-                        </label>
-                        <div id="drop-zone" class="relative group">
-                            <label for="multi-upload"
-                                class="relative flex flex-col items-center justify-center w-full h-80 border-2 border-dashed border-slate-200 rounded-[3rem] cursor-pointer bg-white hover:bg-slate-50 hover:border-indigo-400 transition-all duration-500 overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-indigo-100/50">
-
-                                <div class="absolute -top-24 -right-24 w-48 h-48 bg-indigo-100/50 rounded-full blur-3xl group-hover:bg-indigo-200/50 transition-colors"></div>
-
-                                <div class="flex flex-col items-center justify-center pt-5 pb-6 relative z-10 text-center px-6">
-                                    <div id="icon-container" class="w-20 h-20 rounded-3xl bg-slate-50 border border-slate-100 shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 group-hover:bg-white group-hover:border-indigo-100 transition-all duration-500">
-                                        <svg class="w-10 h-10 text-slate-400 group-hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 00-2 2z"></path>
-                                        </svg>
-                                    </div>
-
-                                    <h3 class="text-2xl font-black text-slate-900 mb-2 tracking-tight">Drop media here</h3>
-                                    <p class="text-sm text-slate-500 font-medium">or <span class="text-indigo-600 underline decoration-2 underline-offset-4 font-bold">browse computer</span></p>
-
-                                    <div class="mt-8 flex gap-2">
-                                        <span class="px-4 py-1.5 rounded-xl bg-slate-100 text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover:bg-white transition-colors">PNG</span>
-                                        <span class="px-4 py-1.5 rounded-xl bg-slate-100 text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover:bg-white transition-colors">JPG</span>
-                                        <span class="px-4 py-1.5 rounded-xl bg-slate-100 text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover:bg-white transition-colors">WEBP</span>
-                                    </div>
-                                </div>
-                                <input id="multi-upload" name="images[]" type="file" class="hidden" multiple accept="image/png, image/jpeg, image/webp" />
-                                <!-- <input id="multi-upload" name="file" type="file" class="hidden" multiple accept="image/png, image/jpeg, image/webp" /> -->
-                            </label>
-
-                            <div id="file-preview" class="hidden absolute inset-0 pointer-events-none bg-white/95 backdrop-blur-md rounded-[3rem] flex flex-col items-center justify-center z-20 animate-in fade-in zoom-in duration-300">
-                                <div class="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mb-6 shadow-inner">
-                                    <svg class="w-12 h-12 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                </div>
-                                <p class="text-3xl font-black text-slate-900 tracking-tighter"><span id="file-count">0</span> Images</p>
-                                <p class="text-slate-500 font-bold mt-1 uppercase text-[10px] tracking-[0.2em]">Ready for AI Analysis</p>
-                                <button type="button" onclick="resetUpload()" class="mt-8 pointer-events-auto text-[10px] font-black text-rose-500 hover:text-rose-700 transition-colors uppercase tracking-[0.2em] bg-rose-50 px-4 py-2 rounded-lg">Reset Files</button>
-                            </div>
-                        </div>
-                        @error('file')
-                        <p class="text-rose-500 text-xs mt-2 ml-1 font-medium">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="pt-6">
-                        <button type="submit" class="w-full group relative flex items-center justify-center py-5 px-6 bg-slate-900 text-white rounded-[2rem] font-black text-lg shadow-2xl shadow-slate-200 hover:bg-indigo-600 transition-all duration-300 transform hover:-translate-y-1">
-                            <span>Process & Sort via AI</span>
-                            <svg class="ml-3 w-6 h-6 transition-transform group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </form>
+                    <div class="h-px w-full bg-slate-800"></div>
+                </div>
             </section>
 
-            <script>
-                const dropZone = document.getElementById('drop-zone');
-                const input = document.getElementById('multi-upload');
-                const preview = document.getElementById('file-preview');
-                const countSpan = document.getElementById('file-count');
+            <main class="flex-1 p-5">
+                <section class="p-6 bg-slate-950">
 
-                // Drag and Drop Logic
-                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, preventDefaults, false);
-                });
+                    <form action="{{ route('upload_queues.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                        @csrf
 
-                function preventDefaults(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
+                        <div class="flex justify-center">
+                            <div class="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex flex-col shadow-2xl">
 
-                ['dragenter', 'dragover'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, () => {
-                        dropZone.classList.add('scale-[0.98]', 'opacity-90');
-                    }, false);
-                });
+                                <div class="p-5 border-b border-slate-800 bg-slate-950/30 flex justify-between items-center">
+                                    <div>
+                                        <h3 class="text-white font-medium">Upload to Queue</h3>
+                                        <p class="text-[11px] text-slate-500 font-mono mt-1 uppercase">Ready for Input</p>
+                                    </div>
+                                    <a href="{{ route('upload_queues.index') }}" class="text-[10px] font-bold text-slate-600 hover:text-rose-500 uppercase tracking-widest transition-colors">Cancel</a>
+                                </div>
 
-                ['dragleave', 'drop'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, () => {
-                        dropZone.classList.remove('scale-[0.98]', 'opacity-90');
-                    }, false);
-                });
+                                <div class="p-8 space-y-8">
 
-                dropZone.addEventListener('drop', (e) => {
-                    const dt = e.dataTransfer;
-                    const files = dt.files;
-                    // Transfer files to input manually
-                    const dataTransfer = new DataTransfer();
-                    for (let i = 0; i < files.length; i++) {
-                        dataTransfer.items.add(files[i]);
-                    }
-                    input.files = dataTransfer.files;
-                    updatePreview(files.length);
-                });
+                                    <div class="max-w-md mx-auto">
+                                        <label for="album_id" class="block text-[10px] uppercase font-mono text-slate-500 font-bold mb-3 tracking-wider">Target Destination</label>
+                                        <div class="relative group">
+                                            <select id="album_id" name="album_id" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-md px-4 py-2.5 outline-none appearance-none cursor-pointer focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 transition-colors">
+                                                @foreach($albums as $album)
+                                                <option value="{{ $album->id }}" {{ (isset($selectedAlbumId) && $selectedAlbumId == $album->id) ? 'selected' : '' }}>
+                                                    {{ $album->album_name }}
+                                                </option>
+                                                @endforeach
+                                            </select>
+                                            <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-slate-500 group-hover:text-white transition-colors">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        @error('album_id')
+                                        <p class="text-rose-500 text-[10px] mt-2 font-medium">{{ $message }}</p>
+                                        @enderror
+                                    </div>
 
-                input.addEventListener('change', () => {
-                    updatePreview(input.files.length);
-                });
+                                    <div id="drop-zone" class="relative group border-2 border-dashed border-slate-800 bg-slate-950/50 rounded-lg h-64 flex flex-col items-center justify-center text-center transition-all duration-300 hover:border-indigo-500/50 hover:bg-slate-900 cursor-pointer overflow-hidden">
 
-                function updatePreview(count) {
-                    if (count > 0) {
-                        preview.classList.remove('hidden');
-                        countSpan.innerText = count;
-                    }
-                }
+                                        <input id="multi-upload" name="images[]" type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" multiple accept="image/png, image/jpeg, image/webp">
 
-                function resetUpload() {
-                    input.value = '';
-                    preview.classList.add('hidden');
-                }
-            </script>
+                                        <div class="space-y-4 pointer-events-none z-0">
+                                            <div class="mx-auto h-12 w-12 text-slate-600 group-hover:text-indigo-400 transition-colors">
+                                                <svg class="animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-medium text-white">Drop media here</p>
+                                                <p class="text-[11px] text-slate-500 mt-1">or <span class="text-indigo-400 underline underline-offset-4 decoration-indigo-400/30">browse computer</span></p>
+                                            </div>
+                                        </div>
 
-        </main>
+                                        <div id="file-preview" class="hidden absolute inset-0 z-20 bg-slate-900/95 backdrop-blur-sm flex flex-col items-center justify-center animate-in fade-in zoom-in duration-300">
+                                            <div class="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mb-4 border border-emerald-500/20">
+                                                <svg class="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                            </div>
+                                            <p class="text-xl font-light text-white"><span id="file-count" class="font-bold text-emerald-400">0</span> Images Selected</p>
+                                            <p class="text-[10px] text-slate-500 font-mono mt-1 uppercase tracking-widest">Ready for Analysis</p>
+
+                                            <button type="button" onclick="resetUpload()" class="mt-6 px-4 py-2 rounded border border-rose-500/20 bg-rose-500/10 text-[10px] font-bold text-rose-500 hover:bg-rose-500 hover:text-white transition-all uppercase tracking-widest z-30 pointer-events-auto">
+                                                Reset Files
+                                            </button>
+                                        </div>
+
+                                    </div>
+                                    @error('file')
+                                    <p class="text-rose-500 text-xs text-center font-medium">{{ $message }}</p>
+                                    @enderror
+                                    @error('images')
+                                    <p class="text-rose-500 text-xs text-center font-medium">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div class="p-6 bg-slate-950/50 border-t border-slate-800 flex justify-center">
+                                    <button type="submit" class="px-12 py-2.5 bg-white hover:bg-slate-200 text-slate-900 rounded-md text-xs font-bold uppercase tracking-widest transition-all shadow-sm">
+                                        Upload to Queue
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+            </main>
+
+        </div>
 
     </div>
+
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const input = document.getElementById('multi-upload');
+        const preview = document.getElementById('file-preview');
+        const countSpan = document.getElementById('file-count');
+
+        // Drag and Drop Logic
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        // Add visual cues when dragging over
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.add('border-indigo-500', 'bg-slate-900');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.remove('border-indigo-500', 'bg-slate-900');
+            }, false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            // Create a DataTransfer to update the input files
+            const dataTransfer = new DataTransfer();
+            for (let i = 0; i < files.length; i++) {
+                dataTransfer.items.add(files[i]);
+            }
+            input.files = dataTransfer.files;
+
+            updatePreview(files.length);
+        });
+
+        input.addEventListener('change', () => {
+            updatePreview(input.files.length);
+        });
+
+        function updatePreview(count) {
+            if (count > 0) {
+                preview.classList.remove('hidden');
+                countSpan.innerText = count;
+            }
+        }
+
+        function resetUpload() {
+            input.value = '';
+            preview.classList.add('hidden');
+            // Reset visual styles just in case
+            dropZone.classList.remove('border-indigo-500', 'bg-slate-900');
+        }
+    </script>
 
 </body>
 

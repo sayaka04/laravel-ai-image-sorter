@@ -13,6 +13,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage; // Added Storage Facade
 
 class ProcessImageAiVisionJob extends AIConfig implements ShouldQueue
 {
@@ -20,7 +21,7 @@ class ProcessImageAiVisionJob extends AIConfig implements ShouldQueue
 
     public string $model;
     public string $prompt;
-    public string $base64Image;
+    // public string $base64Image; // Removed: We don't want this in the payload
     public string $categories;
     public UploadQueue $uploadQueue;
     public string $cacheKey;
@@ -28,68 +29,73 @@ class ProcessImageAiVisionJob extends AIConfig implements ShouldQueue
     public $tries = 3;
     public $timeout = 1000;
 
-    public function __construct(string $model, string $prompt, string $base64Image, string $categories, UploadQueue $uploadQueue, string $cacheKey)
+    // Updated Constructor: Removed $base64Image
+    public function __construct(string $model, string $prompt, string $categories, UploadQueue $uploadQueue, string $cacheKey)
     {
         $this->model = $model;
         $this->prompt = $prompt;
-        $this->base64Image = $base64Image;
         $this->categories = $categories;
         $this->uploadQueue = $uploadQueue;
         $this->cacheKey = $cacheKey;
     }
 
-
-
-
-
-
     public function handle(): void
     {
         try {
-
-            // 1. Mark as image processing indicating the vision step
+            // 1. Mark as image processing
             $this->updateStatus(UploadStatus::IMAGE_PROCESSING);
 
-            // 2. The HTTP Call (Kept as requested)
+            // 1.5. NEW: Read the file from storage and Encode to Base64
+            // We use the 'public' disk because that is where the controller stored it.
+            if (!Storage::disk('public')->exists($this->uploadQueue->file_path)) {
+                throw new \Exception("File not found at path: " . $this->uploadQueue->file_path);
+            }
+
+            $imageContents = Storage::disk('public')->get($this->uploadQueue->file_path);
+            $base64Image = base64_encode($imageContents);
+
+            // 2. The HTTP Call
             $response = Http::timeout(1000)->post('http://localhost:11434/api/chat', [
-                'model'  => $this->model, //llava:7b , qwen3-vl:8b
+                'model'    => $this->model,
                 'messages' => [
                     [
                         'role' => 'user',
                         'content' => $this->prompt,
                         'images' => [
-                            $this->base64Image
+                            $base64Image // Use the locally generated variable
                         ]
-
                     ]
                 ],
                 'stream' => false,
             ]);
 
             // 3. Process Result
+            if ($response->failed()) {
+                throw new \Exception('AI Server Error: ' . $response->body());
+            }
+
             $visionData = json_encode($response->json(), JSON_PRETTY_PRINT);
             $this->cacheResult($visionData);
 
             // 4. Prepare next step (AIConfig logic)
-            // Prepare text model and prompt based on vision data
-            $this->setTextPrompt($this->categories, $visionData); // use vision data to set prompt for text AI model
-            $prompt = $this->getTextPrompt(); // get the prepared prompt as a result of setTextPrompt call
-            $model = $this->getTextModel(); // get the text AI model to use
+            $this->setTextPrompt($this->categories, $visionData);
+            $prompt = $this->getTextPrompt();
+            $model = $this->getTextModel();
 
-            // log for debugging
+            // Log for debugging
             $this->logTextModelConfig($model, $prompt, $visionData, $this->categories);
 
-            // 5. Finally, dispatch the text processing job to categorize the image and move it to the right folder
+            // 5. Dispatch the text processing job
             ProcessImageAiTextJob::dispatch(
                 $model,
                 $prompt,
                 $this->uploadQueue,
                 $this->cacheKey . '2nd'
             )->onQueue('text');
-
-            // End of try block
         } catch (\Exception $e) {
             $this->reportError($e);
+            // We do not re-throw here if we want to mark it as failed gracefully in 'failed()'
+            // But throwing it ensures Laravel's retry logic kicks in.
             throw $e;
         }
     }
@@ -100,24 +106,16 @@ class ProcessImageAiVisionJob extends AIConfig implements ShouldQueue
         $this->uploadQueue->update(['status' => UploadStatus::FAILED->value]);
     }
 
-
-
     /*
     |--------------------------------------------------------------------------
     | Private Helper Methods
     |--------------------------------------------------------------------------
-    |
-    | SEPARATION OF CONCERNS
-    | These methods are used internally within the job to keep the code organized
-    | and maintainable.
-    |
     */
     private function updateStatus(UploadStatus $status): void
     {
         $this->uploadQueue->update(['status' => $status->value]);
 
-        Log::info('RunLLMVisionJob started for UploadQueue ID: ' . $this->uploadQueue->id);
-        Log::info(' UploadQueue: ' . $this->uploadQueue);
+        Log::info('ProcessImageAiVisionJob running for UploadQueue ID: ' . $this->uploadQueue->id);
     }
 
     private function cacheResult(string $data): void
@@ -127,13 +125,14 @@ class ProcessImageAiVisionJob extends AIConfig implements ShouldQueue
 
     private function logTextModelConfig($model, $prompt, $visionData, $categories): void
     {
-        Log::info('model: ' . $model);
-        Log::info('prompt: ' . $prompt);
-        Log::info('visionData: ' . $visionData);
-        Log::info('categories: ' . $categories);
+        Log::info('Text Model Config Prepared:');
+        Log::info('Model: ' . $model);
+        // Truncate logs to avoid spamming massive strings
+        Log::info('Prompt Preview: ' . substr($prompt, 0, 100) . '...');
+        Log::info('Vision Data Preview: ' . substr($visionData, 0, 100) . '...');
     }
 
-    private function reportError(\Exception $e, string $title = 'RunLLMVisionJob failed'): void
+    private function reportError(\Exception $e, string $title = 'ProcessImageAiVisionJob failed'): void
     {
         Log::error($title . ': ' . $e->getMessage());
 

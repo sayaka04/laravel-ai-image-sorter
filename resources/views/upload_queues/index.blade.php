@@ -10,7 +10,7 @@
 
 </head>
 
-<body class="bg-gray-50 flex h-screen overflow-hidden">
+<body class="flex h-screen overflow-hidden bg-slate-950 text-slate-400 font-sans">
 
     @include('partials.sidebar')
 
@@ -18,105 +18,170 @@
 
         @include('partials.navbar')
 
-        <main class="flex-1 overflow-y-auto p-6">
+        <div class="flex-1 min-h-0 flex flex-col gap-6 p-4 md:p-6 lg:p-8 overflow-y-auto w-full">
 
-            <div class="flex justify-between h-18 items-center py-4">
-                <div class="flex items-center gap-8">
-                    <a href="{{ route('albums.index') }}" class="flex items-center gap-2 group">
-                        <div class="bg-indigo-600 p-1.5 rounded-lg">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                            </svg>
+            <section>
+                <div class="flex flex-col gap-4 shrink-0">
+
+                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl md:text-3xl font-light text-white tracking-tight">Queues</h1>
+                            <p class="text-sm text-slate-500 mt-1">This is the queue of images to be sorted</p>
                         </div>
-                        <span class="text-slate-900 font-black text-xl tracking-tight">SmartSorter<span class="text-indigo-600">AI</span></span>
-                    </a>
-                </div>
-                <a href="{{ route('upload_queues.create') }}" class="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-indigo-600 transition-all shadow-lg shadow-slate-200">
-                    + Upload
-                </a>
-            </div>
 
-            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-                <div class="mb-10">
-                    <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Active Queue</h1>
-                    <p class="text-slate-500 mt-1">Images currently being processed by the AI engine.</p>
-                </div>
+                        <div class="flex flex-col sm:flex-row gap-3">
 
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                    @forelse($queues as $queue)
-                    <div class="group relative bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl">
-
-                        <div class="aspect-square relative overflow-hidden bg-slate-100">
-                            @if($queue->file_path)
-                            <img src="{{ Storage::url($queue->file_path) }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="Queue Item">
-                            @else
-                            <div class="w-full h-full flex items-center justify-center text-slate-300">
-                                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 00-2 2z"></path>
+                            <a href="{{ route('upload_queues.create') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-ai-accent hover:bg-indigo-500 text-white text-xs font-medium rounded shadow-[0_0_15px_-5px_rgba(99,102,241,0.5)] transition-all whitespace-nowrap decoration-none">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                                 </svg>
-                            </div>
-                            @endif
+                                Upload to Queue
+                            </a>
 
-                            @if($queue->status->value === 'pending')
-                            <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center">
-                                <span class="bg-white/90 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-900 shadow-xl">In Queue</span>
-                            </div>
-                            @elseif($queue->status->value === 'image_processing')
-                            <div class="absolute inset-0 bg-indigo-600/20 backdrop-blur-[4px] flex flex-col items-center justify-center">
-                                <div class="relative h-12 w-12">
-                                    <svg class="animate-spin h-12 w-12 text-white" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-100" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
+                            <a href="{{ route('albums.create') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-900 border border-slate-700 hover:border-slate-500 text-white text-xs font-medium rounded transition-all whitespace-nowrap decoration-none">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                Add New Album
+                            </a>
+
+                        </div>
+                    </div>
+
+                    <div class="h-px w-full bg-slate-800"></div>
+
+                    <form action="{{ route('upload_queues.index') }}" method="GET">
+                        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+
+                            <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+                                <div class="relative group w-full sm:w-64">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg class="h-4 w-4 text-slate-600 group-focus-within:text-ai-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
+                                    </div>
+                                    <input type="text" name="search" value="{{ request('search') }}"
+                                        class="w-full bg-slate-900 border border-slate-800 focus:border-ai-accent text-slate-300 text-sm rounded block pl-10 py-2 placeholder-slate-600 transition-all focus:outline-none focus:ring-1 focus:ring-ai-accent/50"
+                                        placeholder="Search filename...">
                                 </div>
-                                <span class="mt-3 text-white text-[10px] font-black uppercase tracking-widest drop-shadow-md">AI Analyzing</span>
-                            </div>
-                            @elseif($queue->status->value === 'failed')
-                            <div class="absolute inset-0 bg-rose-500/60 backdrop-blur-sm flex items-center justify-center">
-                                <span class="bg-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-rose-600">Error</span>
-                            </div>
-                            @endif
-                        </div>
 
-                        <div class="p-4">
-                            <h3 class="text-sm font-bold text-slate-900 truncate mb-1" title="{{ $queue->original_filename }}">
-                                {{ $queue->original_filename }}
-                            </h3>
-                            <div class="flex items-center justify-between">
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tight">
-                                    {{ $queue->created_at->diffForHumans(null, true) }}
-                                </span>
-                                <a href="{{ route('albums.show', $queue->album_id) }}" class="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 transition-colors uppercase tracking-tight">
-                                    {{ Str::limit($queue->album->album_name, 12) }}
-                                </a>
+                                <select name="album_id" onchange="this.form.submit()"
+                                    class="w-full sm:w-auto bg-slate-900 border border-slate-800 focus:border-ai-accent text-slate-300 text-sm rounded block pl-3 pr-8 py-2 focus:outline-none transition-all cursor-pointer">
+                                    <option value="">All Albums</option>
+                                    @foreach($albums as $album)
+                                    <option value="{{ $album->id }}" {{ request('album_id') == $album->id ? 'selected' : '' }}>
+                                        {{ $album->album_name }}
+                                    </option>
+                                    @endforeach
+                                </select>
+
+                                <select name="status" onchange="this.form.submit()"
+                                    class="w-full sm:w-auto bg-slate-900 border border-slate-800 focus:border-ai-accent text-slate-300 text-sm rounded block pl-3 pr-8 py-2 focus:outline-none transition-all cursor-pointer">
+                                    <option value="">All Statuses</option>
+                                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                    <option value="image_processing" {{ request('status') == 'image_processing' ? 'selected' : '' }}>Image Processing</option>
+                                    <option value="final_processing" {{ request('status') == 'final_processing' ? 'selected' : '' }}>Final Processing</option>
+                                    <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                                    <option value="failed" {{ request('status') == 'failed' ? 'selected' : '' }}>Failed</option>
+                                </select>
+
+                                @if(request()->anyFilled(['search', 'album_id', 'status']))
+                                <a href="{{ route('upload_queues.index') }}" class="text-slate-500 hover:text-white text-xs flex items-center px-2">Clear Filters</a>
+                                @endif
                             </div>
 
-                            <div class="mt-4 pt-3 border-t border-slate-50 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                <a href="{{ route('upload_queues.edit', $queue) }}" class="text-xs font-bold text-slate-400 hover:text-slate-600">Edit</a>
-                                <form action="{{ route('upload_queues.destroy', $queue) }}" method="POST">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="text-xs font-bold text-rose-400 hover:text-rose-600">Cancel</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    @empty
-                    <div class="col-span-full py-20 bg-white rounded-[3rem] border-2 border-dashed border-slate-100 flex flex-col items-center justify-center">
-                        <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 text-slate-200">
-                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 00-2 2z"></path>
-                            </svg>
-                        </div>
-                        <p class="text-slate-400 font-bold">No active uploads</p>
-                    </div>
-                    @endforelse
-                </div>
+                            <button type="submit" class="hidden">Search</button>
 
-                <div class="mt-12">
-                    {{ $queues->links() }}
+                        </div>
+                    </form>
                 </div>
             </section>
-        </main>
+
+            <main class="flex-1 p-5">
+                <section class="p-6 bg-slate-950">
+
+
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+                        @foreach($queues as $queue)
+
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 flex flex-col items-center text-center space-y-5 shadow-lg">
+                            <div class="w-full text-left">
+                                <h4 class="text-white font-medium text-sm"> {{ $queue->original_filename }}</h4>
+                                <p class="text-[11px] text-slate-500 font-mono mt-0.5 uppercase"> {{ Str::limit($queue->album->album_name, 25) }}</p>
+                            </div>
+
+
+                            @if($queue->status->value === 'pending')
+                            <div class="relative h-24 w-24 flex items-center justify-center">
+                                <svg class="w-full h-full -rotate-90">
+                                    <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="6" fill="transparent" class="text-slate-950" />
+                                </svg>
+                                <span class="absolute text-lg font-bold text-white font-mono">0%</span>
+                            </div>
+                            @elseif($queue->status->value === 'image_processing')
+                            <div class="relative h-24 w-24 flex items-center justify-center">
+                                <svg class="w-full h-full -rotate-90">
+                                    <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="6" fill="transparent" class="text-slate-950" />
+                                    <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="6" fill="transparent"
+                                        class="animate-spin origin-center text-ai-accent"
+                                        stroke-dasharray="251.2"
+                                        stroke-dashoffset="167.5" />
+                                </svg>
+                                <span class="absolute text-lg font-bold text-white font-mono">33%</span>
+                            </div>
+                            @elseif($queue->status->value === 'final_processing')
+                            <div class="relative h-24 w-24 flex items-center justify-center">
+                                <svg class="w-full h-full -rotate-90">
+                                    <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="6" fill="transparent" class="text-slate-950" />
+                                    <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="6" fill="transparent"
+                                        class="animate-spin origin-center text-ai-accent"
+                                        stroke-dasharray="251.2"
+                                        stroke-dashoffset="83.7" />
+                                </svg>
+                                <span class="absolute text-lg font-bold text-white font-mono">67%</span>
+                            </div>
+                            @elseif($queue->status->value === 'completed')
+                            <div class="relative h-24 w-24 flex items-center justify-center">
+                                <svg class="w-full h-full -rotate-90">
+                                    <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="6" fill="transparent" class="text-slate-950" />
+                                    <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="6" fill="transparent"
+                                        class="animate-pulse text-ai-accent"
+                                        stroke-dasharray="251.2"
+                                        stroke-dashoffset="0" />
+                                </svg>
+                                <span class="absolute text-lg font-bold text-white font-mono">100%</span>
+                            </div>
+                            @elseif($queue->status->value === 'failed')
+
+                            @endif
+
+                            <div class="flex items-center gap-4 text-[10px] font-mono text-slate-500 uppercase tracking-tighter">
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]"></div>
+                                    {{ $queue->status }}
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-2 h-2 rounded-full bg-slate-700"></div>
+                                    {{ $queue->created_at->diffForHumans() }}
+                                </div>
+                            </div>
+
+                            <button class="w-full py-2 bg-slate-800 hover:bg-red-900/30 text-slate-300 hover:text-red-200 border border-slate-700 hover:border-red-900/50 rounded-md text-[10px] font-bold uppercase tracking-widest transition-all">
+                                Cancel
+                            </button>
+                        </div>
+                        @endforeach
+
+                    </div>
+
+
+                </section>
+            </main>
+
+            @include('partials.pagination')
+
+        </div>
 
     </div>
 

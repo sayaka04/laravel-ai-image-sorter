@@ -10,18 +10,40 @@ class CategoryController extends Controller
 {
     public function index(Request $request)
     {
-        $categories = Category::query();
+        // Start with categories belonging to the user's albums
+        $query = Category::whereHas('album', function ($q) use ($request) {
+            $q->where('user_id', $request->user()->id);
+        });
 
-        if ($request->has('album_id')) {
-            $categories->where('album_id', $request->album_id);
-        }
+        // Filter by Search (Category Name or AI Rules)
+        $query->when($request->filled('search'), function ($q) use ($request) {
+            $q->where(function ($sq) use ($request) {
+                $sq->where('category_name', 'like', '%' . $request->search . '%')
+                    ->orWhere('ai_rules', 'like', '%' . $request->search . '%');
+            });
+        });
 
-        // FIX 1: Assign the result back to the variable ($categories =)
-        $categories = $categories->with('album')
+        // Filter by Album
+        $query->when($request->filled('album_id'), function ($q) use ($request) {
+            $q->where('album_id', $request->album_id);
+        });
+
+        $categories = $query->with('album')
             ->latest()
-            ->paginate(50);
+            ->paginate(50)
+            ->withQueryString();
 
-        return view('categories.index', compact('categories'));
+        // Fetch user's albums for the filter dropdown
+        $albums = \App\Models\Album::where('user_id', $request->user()->id)
+            ->orderBy('album_name')
+            ->get();
+
+        return view('categories.index', [
+            'categories' => $categories,
+            'albums' => $albums,
+            'title'   => 'SmartSorter AI - Categories',
+            'header_name' => 'Categories',
+        ]);
     }
 
     public function create(Request $request)
@@ -32,7 +54,12 @@ class CategoryController extends Controller
         // You might want to pass all albums for the dropdown
         $albums = $request->user()->albums;
 
-        return view('categories.create', compact('albums', 'selectedAlbumId'));
+        return view('categories.create', [
+            'albums' => $albums,
+            'selectedAlbumId' => $selectedAlbumId,
+            'title'   => 'SmartSorter AI - Create Category',
+            'header_name' => 'Categories/Create',
+        ]);
     }
 
     public function store(Request $request)

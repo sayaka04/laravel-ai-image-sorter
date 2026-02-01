@@ -35,7 +35,7 @@
             <div class="w-20 shrink-0 flex items-center justify-center text-xl text-slate-400 group-hover:text-indigo-400">
                 <i class="ph ph-queue"></i>
             </div>
-            <span class="font-medium text-sm link-text">Queue</span>
+            <span class="font-medium text-sm link-text">Queues</span>
         </a>
 
         <a href="{{ route('files.index') }}" class="flex items-center h-12 hover:bg-slate-800 hover:text-indigo-400 transition-colors group">
@@ -61,7 +61,7 @@
                 <img src="https://ui-avatars.com/api/?name=Alex+Doe&background=3730a3&color=fff" class="w-8 h-8 rounded-full">
             </div>
             <div class="link-text overflow-hidden pr-4">
-                <p class="text-sm font-semibold text-white">Alex Doe</p>
+                <p class="text-sm font-semibold text-white">{{ Auth::user()->name}}</p>
                 <p class="text-xs text-slate-500">View Profile</p>
             </div>
         </a>

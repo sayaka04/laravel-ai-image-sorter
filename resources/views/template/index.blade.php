@@ -18,11 +18,7 @@
 
         @include('partials.navbar')
 
-        <main class="flex-1 p-5">
-
-
-
-        </main>
+        @include('template.partials.part1')
 
     </div>
 

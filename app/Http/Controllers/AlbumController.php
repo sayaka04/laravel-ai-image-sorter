@@ -11,12 +11,24 @@ class AlbumController extends Controller
 {
     public function index(Request $request)
     {
-        // Best Practice: Pagination prevents crashing on large datasets
-        // 'withCount' is efficient for showing "Album (50 items)"
-        $albums = Album::where('user_id', $request->user()->id)
-            ->withCount(['categories', 'uploadQueues'])
-            ->latest()
-            ->paginate(20);
+        $query = Album::where('user_id', $request->user()->id)
+            ->withCount(['categories', 'uploadQueues']);
+
+        // Search Filter
+        $query->when($request->filled('search'), function ($q) use ($request) {
+            $q->where('album_name', 'like', '%' . $request->search . '%');
+        });
+
+        // Date Filters
+        $query->when($request->filled('from'), function ($q) use ($request) {
+            $q->whereDate('created_at', '>=', $request->from);
+        });
+
+        $query->when($request->filled('to'), function ($q) use ($request) {
+            $q->whereDate('created_at', '<=', $request->to);
+        });
+
+        $albums = $query->latest()->paginate(20)->withQueryString();
 
         return view('albums.index', [
             'albums' => $albums,
@@ -63,7 +75,11 @@ class AlbumController extends Controller
 
         // Eager load categories for the detailed view
         $album->load('categories');
-        return view('albums.show', compact('album'));
+        return view('albums.show', [
+            'album' => $album,
+            'title'   => 'SmartSorter AI - Album Details',
+            'header_name' => 'Albums/Content',
+        ]);
     }
 
     public function update(Request $request, Album $album)

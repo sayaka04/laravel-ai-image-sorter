@@ -9,11 +9,16 @@ use App\Http\Controllers\UploadQueueController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
-});
+    return view('welcome', [
+        'title' => 'SmartSorter AI'
+    ]);
+})->name('/');
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return view('dashboard', [
+        'title' => 'SmartSorter AI - Dashboard',
+        'header_name' => 'Dashboard'
+    ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -41,3 +46,4 @@ Route::resources([
 Route::get('/testing', [TestingController::class, 'index'])->name('testing.index');
 
 Route::view('/test', 'test');
+Route::view('/template', 'template.index');

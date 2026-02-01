@@ -20,27 +20,47 @@ class UploadQueueController extends AIConfig
 
     public function index(Request $request)
     {
-        $queues = UploadQueue::whereHas('album', function ($query) use ($request) {
+        $query = UploadQueue::whereHas('album', function ($query) use ($request) {
             $query->where('user_id', $request->user()->id);
-        })
-            ->with('album')
-            ->orderByRaw(
-                "FIELD(status, ?, ?, ?, ?, ?)",
-                [
-                    UploadStatus::PENDING->value,
-                    UploadStatus::IMAGE_PROCESSING->value,
-                    UploadStatus::FINAL_PROCESSING->value,
-                    UploadStatus::FAILED->value,
-                    UploadStatus::COMPLETED->value,
-                ]
-            )
+        })->with('album');
+
+        // Filter by Filename (Search)
+        $query->when($request->filled('search'), function ($q) use ($request) {
+            $q->where('original_filename', 'like', '%' . $request->search . '%');
+        });
+
+        // Filter by Album ID
+        $query->when($request->filled('album_id'), function ($q) use ($request) {
+            $q->where('album_id', $request->album_id);
+        });
+
+        // Filter by Status
+        $query->when($request->filled('status'), function ($q) use ($request) {
+            $q->where('status', $request->status);
+        });
+
+        $queues = $query->orderByRaw(
+            "FIELD(status, ?, ?, ?, ?, ?)",
+            [
+                UploadStatus::PENDING->value,
+                UploadStatus::IMAGE_PROCESSING->value,
+                UploadStatus::FINAL_PROCESSING->value,
+                UploadStatus::FAILED->value,
+                UploadStatus::COMPLETED->value,
+            ]
+        )
             ->latest()
-            ->paginate(20);
+            ->paginate(20)
+            ->withQueryString();
+
+        // Fetch user's albums for the dropdown filter
+        $albums = \App\Models\Album::where('user_id', $request->user()->id)->orderBy('album_name')->get();
 
         return view('upload_queues.index', [
             'queues' => $queues,
+            'albums' => $albums,
             'title' => 'SmartSorter AI - Queues',
-            'header_name' => 'Queues\\Create',
+            'header_name' => 'Queues',
         ]);
     }
 
@@ -55,7 +75,7 @@ class UploadQueueController extends AIConfig
             'albums' => $albums,
             'selectedAlbumId' => $selectedAlbumId,
             'title'   => 'SmartSorter AI - Queues',
-            'header_name' => 'Queues\Create',
+            'header_name' => 'Queues/Create',
         ]);
     }
     public function store(Request $request)
@@ -78,8 +98,18 @@ class UploadQueueController extends AIConfig
             $userId = $request->user()->id;
             $files = $request->file('images');
 
+            // Optimization: Fetch categories once outside the loop
+            $categories = Category::where('album_id', $request->album_id)
+                ->select(['id', 'category_name', 'ai_rules'])
+                ->get();
+
+            $categoryContext = $categories->map(function ($cat) {
+                return "- ID {$cat->id}: \"{$cat->category_name}\" (Rules: " . ($cat->ai_rules ?? 'General sorting') . ")";
+            })->implode("\n");
+
             foreach ($files as $file) {
                 $originalName = $file->getClientOriginalName();
+                // Store file on 'public' disk
                 $path = $file->store("users/{$userId}/upload_queues", 'public');
 
                 $upload_queue = UploadQueue::create([
@@ -89,29 +119,23 @@ class UploadQueueController extends AIConfig
                     'status'            => UploadStatus::PENDING->value,
                 ]);
 
-                $upload_queue->load('album.user');
-
-                $categories = Category::where('album_id', $request->album_id)
-                    ->select(['id', 'category_name', 'ai_rules'])
-                    ->get();
-                $categoryContext = $categories->map(function ($cat) {
-                    return "- ID {$cat->id}: \"{$cat->category_name}\" (Rules: " . ($cat->ai_rules ?? 'General sorting') . ")";
-                })->implode("\n");
+                // We do not need to load relations here, the Job will handle what it needs.
 
                 $model = $this->getVisionModel();
                 $prompt = $this->getVisionPrompt();
-                $base64Image = base64_encode(file_get_contents($file->getRealPath()));
                 $cacheKey = 'ai_sort_' . $request->user()->id . '_' . md5($file->getClientOriginalName() . microtime());
 
-                Log::info('model: ' . $model);
-                Log::info('prompt: ' . $prompt);
-                Log::info('base64Image: ' . $base64Image);
-                Log::info('cacheKey: ' . $cacheKey);
-                Log::info('categoryContext: ' . $categoryContext);
+                // Logging only metadata now (safe)
+                Log::info("Queueing File: {$originalName} | ID: {$upload_queue->id}");
 
-
-                ProcessImageAiVisionJob::dispatch($model, $prompt, $base64Image, $categoryContext, $upload_queue, $cacheKey)
-                    ->onQueue('vision');
+                // Dispatch WITHOUT the base64 string
+                ProcessImageAiVisionJob::dispatch(
+                    $model,
+                    $prompt,
+                    $categoryContext,
+                    $upload_queue,
+                    $cacheKey
+                )->onQueue('vision');
             }
         });
 
@@ -132,7 +156,11 @@ class UploadQueueController extends AIConfig
             abort(403);
         }
 
-        return view('upload_queues.show', compact('uploadQueue'));
+        return view('upload_queues.show', [
+            'uploadQueue' => $uploadQueue,
+            'title'   => 'SmartSorter AI - Queue Details',
+            'header_name' => 'Queue Details',
+        ]);
     }
 
     public function edit(UploadQueue $uploadQueue)

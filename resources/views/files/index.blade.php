@@ -10,7 +10,7 @@
 
 </head>
 
-<body class="bg-gray-50 flex h-screen overflow-hidden">
+<body class="flex h-screen overflow-hidden bg-slate-950 text-slate-400 font-sans">
 
     @include('partials.sidebar')
 
@@ -18,54 +18,143 @@
 
         @include('partials.navbar')
 
-        <main class="flex-1 overflow-y-auto p-6">
+        <div class="flex-1 min-h-0 flex flex-col gap-6 p-4 md:p-6 lg:p-8 overflow-y-auto w-full">
 
-            <h1 class="text-2xl font-bold text-gray-900 mb-6">Recent Files</h1>
+            <section>
+                <div class="flex flex-col gap-4 shrink-0">
 
-            <div class="bg-white shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Summary</th>
-                            <th class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @forelse($files as $file)
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">{{ $file->file_name }}</div>
-                                <div class="text-xs text-gray-400">Added {{ $file->created_at->diffForHumans() }}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                    {{ $file->category->category_name }}
-                                </span>
-                                <div class="text-xs text-gray-400 mt-1">{{ $file->category->album->album_name }}</div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="text-sm text-gray-500 max-w-xs truncate">
-                                    {{ $file->summary ?? 'No summary available' }}
+                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl md:text-3xl font-light text-white tracking-tight">Files</h1>
+                            <p class="text-sm text-slate-500 mt-1">This is the list of all your image files along with their album associations.</p>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row gap-3">
+
+                            <a href="{{ route('albums.create') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-ai-accent hover:bg-indigo-500 text-white text-xs font-medium rounded shadow-[0_0_15px_-5px_rgba(99,102,241,0.5)] transition-all whitespace-nowrap decoration-none">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                Add New Album
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="h-px w-full bg-slate-800"></div>
+
+                    <form action="{{ route('files.index') }}" method="GET">
+                        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                            <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+
+                                <div class="relative group w-full sm:w-64">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg class="h-4 w-4 text-slate-600 group-focus-within:text-ai-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
+                                    </div>
+                                    <input type="text" name="search" value="{{ request('search') }}"
+                                        class="w-full bg-slate-900 border border-slate-800 focus:border-ai-accent text-slate-300 text-sm rounded block pl-10 py-2 placeholder-slate-600 transition-all focus:outline-none"
+                                        placeholder="Search files...">
                                 </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a href="{{ route('files.show', $file) }}" class="text-indigo-600 hover:text-indigo-900">View</a>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="4" class="px-6 py-10 text-center text-gray-500">No files found.</td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
 
-            <div class="mt-4">{{ $files->links() }}</div>
+                                <select name="album_id" onchange="this.form.submit()"
+                                    class="w-full sm:w-auto bg-slate-900 border border-slate-800 focus:border-ai-accent text-slate-300 text-sm rounded block pl-3 pr-8 py-2 focus:outline-none cursor-pointer">
+                                    <option value="">All Albums</option>
+                                    @foreach($albums as $album)
+                                    <option value="{{ $album->id }}" {{ request('album_id') == $album->id ? 'selected' : '' }}>
+                                        {{ $album->album_name }}
+                                    </option>
+                                    @endforeach
+                                </select>
 
-        </main>
+                                <select name="category_id" onchange="this.form.submit()"
+                                    class="w-full sm:w-auto bg-slate-900 border border-slate-800 focus:border-ai-accent text-slate-300 text-sm rounded block pl-3 pr-8 py-2 focus:outline-none cursor-pointer">
+                                    <option value="">All Categories</option>
+                                    @foreach($categories as $category)
+                                    <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
+                                        {{ $category->category_name }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+                                <div class="relative w-full sm:w-auto">
+                                    <label class="absolute -top-2 left-2 bg-slate-950 px-1 text-[10px] text-slate-500 font-mono">FROM</label>
+                                    <input type="date" name="from" value="{{ request('from') }}"
+                                        class="w-full sm:w-auto bg-slate-900 border border-slate-800 text-slate-300 text-xs rounded px-3 py-2 font-mono focus:border-ai-accent focus:outline-none">
+                                </div>
+                                <span class="text-slate-600">-</span>
+                                <div class="relative w-full sm:w-auto">
+                                    <label class="absolute -top-2 left-2 bg-slate-950 px-1 text-[10px] text-slate-500 font-mono">TO</label>
+                                    <input type="date" name="to" value="{{ request('to') }}"
+                                        class="w-full sm:w-auto bg-slate-900 border border-slate-800 text-slate-300 text-xs rounded px-3 py-2 font-mono focus:border-ai-accent focus:outline-none">
+                                </div>
+                                <button type="submit" class="bg-slate-800 p-2 rounded hover:bg-slate-700 transition-colors">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        @if(request()->anyFilled(['search', 'album_id', 'category_id', 'from', 'to']))
+                        <div class="mt-2 text-right">
+                            <a href="{{ route('files.index') }}" class="text-[10px] uppercase tracking-widest text-slate-500 hover:text-white transition-colors">Clear All Filters</a>
+                        </div>
+                        @endif
+                    </form>
+                </div>
+            </section>
+
+            <main class="flex-1 p-5">
+                <section class="p-6 bg-slate-950">
+
+                    <div class="space-y-6">
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            @foreach($files as $file)
+                            <div class="group bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition-all">
+                                <div class="aspect-video bg-slate-950 flex items-center justify-center relative overflow-hidden">
+                                    <div class="text-slate-800 group-hover:scale-110 transition-transform duration-500">
+                                        <svg class="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="absolute top-2 right-2 px-2 py-1 bg-slate-900/80 backdrop-blur-md rounded text-[9px] font-mono text-slate-400 border border-slate-800 uppercase">PNG</div>
+                                </div>
+
+                                <div class="p-4 space-y-3">
+                                    <div>
+                                        <h4 class="text-slate-200 text-sm font-medium truncate">{{ $file->file_name }}</h4>
+                                        <p class="text-[10px] text-slate-500 font-mono mt-1 uppercase tracking-tight">Album: {{ $file->category->album->album_name }}</p>
+                                    </div>
+
+                                    <div class="flex items-center justify-between pt-2 border-t border-slate-800/50">
+                                        <span class="text-[10px] text-ai-accent font-bold uppercase tracking-widest">{{ $file->category->category_name}}</span>
+                                        <span class="text-[9px] text-slate-600 font-mono">{{ $file->created_at->diffForHumans() }}</span>
+                                    </div>
+
+                                    <div class="flex gap-2 pt-1">
+                                        <a href="/view" class="flex-1 py-2 bg-white hover:bg-slate-200 text-slate-900 rounded text-[10px] font-bold uppercase tracking-tighter transition-all text-center">
+                                            Download
+                                        </a>
+
+                                        <a href="/delete" class="flex-1 py-2 bg-slate-800 hover:bg-red-900/40 text-slate-300 hover:text-red-200 rounded text-[10px] font-bold uppercase tracking-tighter transition-all text-center">
+                                            Delete
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                </section>
+            </main>
+
+            @include('partials.pagination')
+
+        </div>
 
     </div>
 
