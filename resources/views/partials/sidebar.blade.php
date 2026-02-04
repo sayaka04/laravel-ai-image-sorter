@@ -17,7 +17,7 @@
 
     <nav class="flex-1 overflow-y-auto py-4 space-y-1">
 
-        <a href="{{ route('dashboard') }}" class="flex items-center h-12 hover:bg-slate-800 hover:text-indigo-400 transition-colors group relative">
+        <a href="{{ route('dashboard.index') }}" class="flex items-center h-12 hover:bg-slate-800 hover:text-indigo-400 transition-colors group relative">
             <div class="w-20 shrink-0 flex items-center justify-center text-xl text-slate-400 group-hover:text-indigo-400">
                 <i class="ph ph-squares-four"></i>
             </div>

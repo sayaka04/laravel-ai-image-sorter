@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AlbumController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TestingController;
@@ -14,12 +15,12 @@ Route::get('/', function () {
     ]);
 })->name('/');
 
-Route::get('/dashboard', function () {
-    return view('dashboard', [
-        'title' => 'SmartSorter AI - Dashboard',
-        'header_name' => 'Dashboard'
-    ]);
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Route::get('/dashboard', function () {
+//     return view('dashboard', [
+//         'title' => 'SmartSorter AI - Dashboard',
+//         'header_name' => 'Dashboard'
+//     ]);
+// })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -47,3 +48,9 @@ Route::get('/testing', [TestingController::class, 'index'])->name('testing.index
 
 Route::view('/test', 'test');
 Route::view('/template', 'template.index');
+
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+
+Route::get('/download-folder/{path?}', [App\Http\Controllers\DownloadController::class, 'downloadFolder'])
+    ->where('path', '.*')
+    ->name('download.folder');

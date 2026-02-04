@@ -152,7 +152,7 @@
                 </section>
             </main>
 
-            @include('partials.pagination')
+            {{ $files->links('partials.pagination') }}
 
         </div>
 

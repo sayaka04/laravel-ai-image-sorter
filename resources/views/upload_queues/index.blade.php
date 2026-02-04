@@ -179,7 +179,7 @@
                 </section>
             </main>
 
-            @include('partials.pagination')
+            {{ $queues->links('partials.pagination') }}
 
         </div>
 

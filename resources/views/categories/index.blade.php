@@ -127,7 +127,8 @@
                 </section>
             </main>
 
-            @include('partials.pagination')
+            {{ $categories->links('partials.pagination') }}
+
 
         </div>
 

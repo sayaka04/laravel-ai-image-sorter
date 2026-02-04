@@ -30,7 +30,7 @@ class CategoryController extends Controller
 
         $categories = $query->with('album')
             ->latest()
-            ->paginate(50)
+            ->paginate(20)
             ->withQueryString();
 
         // Fetch user's albums for the filter dropdown
