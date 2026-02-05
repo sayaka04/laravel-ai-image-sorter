@@ -62,7 +62,7 @@
                         <div class="flex justify-center">
 
                             {{-- Form integrated into your specific card structure --}}
-                            <form action="{{ route('albums.store') }}" method="POST" class="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex flex-col">
+                            <form id="create-album-form" action="{{ route('albums.store') }}" method="POST" class="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex flex-col">
                                 @csrf
 
                                 <div class="p-5 border-b border-slate-800 bg-slate-950/30">
@@ -97,11 +97,32 @@
                                 </div>
 
                                 <div class="p-6 bg-slate-950/50 border-t border-slate-800 flex justify-center">
-                                    <button type="submit" class="px-8 py-2.5 bg-white hover:bg-slate-200 text-slate-900 rounded-md text-xs font-bold uppercase tracking-widest transition-all shadow-sm">
-                                        Confirm Album
+                                    <button type="submit" id="create-btn" class="px-8 py-2.5 bg-white hover:bg-slate-200 text-slate-900 rounded-md text-xs font-bold uppercase tracking-widest transition-all shadow-sm flex items-center gap-2">
+                                        <svg id="btn-spinner" class="animate-spin -ml-1 h-4 w-4 text-slate-900 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        <span id="btn-text">Confirm Album</span>
                                     </button>
                                 </div>
                             </form>
+
+                            <script>
+                                document.getElementById('create-album-form').addEventListener('submit', function(e) {
+                                    // 1. Get Elements
+                                    const btn = document.getElementById('create-btn');
+                                    const spinner = document.getElementById('btn-spinner');
+                                    const text = document.getElementById('btn-text');
+
+                                    // 2. Disable Button immediately
+                                    btn.disabled = true;
+                                    btn.classList.add('opacity-75', 'cursor-not-allowed');
+
+                                    // 3. Show Spinner and Change Text
+                                    spinner.classList.remove('hidden');
+                                    text.innerText = 'CREATING...';
+                                });
+                            </script>
 
                         </div>
                     </div>

@@ -55,7 +55,7 @@
 
             <main class="flex-1 p-5">
                 <section class="p-6 bg-slate-950">
-                    <form action="{{ route('categories.store') }}" method="POST">
+                    <form id="create-category-form" action="{{ route('categories.store') }}" method="POST">
                         @csrf
                         <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex flex-col">
                             <div class="p-5 border-b border-slate-800 bg-slate-950/30">
@@ -88,23 +88,48 @@
                                     </div>
                                     <div>
                                         <label class="block text-[10px] uppercase font-mono text-slate-500 font-bold mb-2 tracking-wider">Category Name</label>
-                                        <input type="text" name="category_name" id="category_name" required" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-md px-3 py-2.5 outline-none" placeholder="e.g. Receipts">
+                                        <input type="text" name="category_name" id="category_name" required
+                                            class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-md px-3 py-2.5 outline-none focus:border-ai-accent transition-colors"
+                                            placeholder="e.g. Receipts">
                                     </div>
                                 </div>
 
                                 <div>
                                     <label class="text-[10px] uppercase font-mono text-ai-accent font-bold tracking-wider block mb-2">AI Sorting Logic</label>
-                                    <textarea id="ai_rules" name="ai_rules" rows="5"" class=" w-full bg-[#050a14] border border-ai-accent/20 text-indigo-100 text-xs font-mono rounded-md p-4 outline-none resize-none leading-relaxed" placeholder="Describe what belongs here..."></textarea>
+                                    <textarea id="ai_rules" name="ai_rules" rows="5"
+                                        class="w-full bg-[#050a14] border border-ai-accent/20 text-indigo-100 text-xs font-mono rounded-md p-4 outline-none resize-none leading-relaxed focus:border-ai-accent/50 transition-colors"
+                                        placeholder="Describe what belongs here..."></textarea>
                                 </div>
                             </div>
 
                             <div class="p-6 bg-slate-950/50 border-t border-slate-800 flex justify-center">
-                                <button type="submit" class="px-10 py-2.5 bg-white hover:bg-slate-200 text-slate-900 rounded-md text-xs font-bold uppercase tracking-widest transition-all shadow-sm">
-                                    Apply Logic
+                                <button type="submit" id="create-btn" class="px-10 py-2.5 bg-white hover:bg-slate-200 text-slate-900 rounded-md text-xs font-bold uppercase tracking-widest transition-all shadow-sm flex items-center gap-2">
+                                    <svg id="btn-spinner" class="animate-spin -ml-1 h-4 w-4 text-slate-900 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span id="btn-text">Apply Logic</span>
                                 </button>
                             </div>
                         </div>
                     </form>
+
+                    <script>
+                        document.getElementById('create-category-form').addEventListener('submit', function(e) {
+                            // 1. Get Elements
+                            const btn = document.getElementById('create-btn');
+                            const spinner = document.getElementById('btn-spinner');
+                            const text = document.getElementById('btn-text');
+
+                            // 2. Disable Button
+                            btn.disabled = true;
+                            btn.classList.add('opacity-75', 'cursor-not-allowed');
+
+                            // 3. Show Spinner & Change Text
+                            spinner.classList.remove('hidden');
+                            text.innerText = 'APPLYING...';
+                        });
+                    </script>
                 </section>
             </main>
 

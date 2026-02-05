@@ -25,7 +25,10 @@
 
                     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
                         <div>
-                            <h1 class="text-2xl md:text-3xl font-light text-white tracking-tight">Queues</h1>
+                            <div class="flex items-center gap-3">
+                                <div class="h-8 w-1 bg-ai-accent shadow-[0_0_10px_var(--neon-primary)] rounded-full"></div>
+                                <h1 class="text-3xl font-light text-white tracking-tight">Queues</h1>
+                            </div>
                             <p class="text-sm text-slate-500 mt-1">This is the queue of images to be sorted</p>
                         </div>
 
@@ -139,7 +142,7 @@
                                         stroke-dasharray="251.2"
                                         stroke-dashoffset="83.7" />
                                 </svg>
-                                <span class="absolute text-lg font-bold text-white font-mono">67%</span>
+                                <span class="animate-pulse absolute text-lg font-bold text-white font-mono">67%</span>
                             </div>
                             @elseif($queue->status->value === 'completed')
                             <div class="relative h-24 w-24 flex items-center justify-center">
@@ -153,7 +156,16 @@
                                 <span class="absolute text-lg font-bold text-white font-mono">100%</span>
                             </div>
                             @elseif($queue->status->value === 'failed')
-
+                            <div class="relative h-24 w-24 flex items-center justify-center">
+                                <svg class="w-full h-full -rotate-90">
+                                    <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="6" fill="transparent" class="text-slate-950" />
+                                    <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="6" fill="transparent"
+                                        class="text-red-600"
+                                        stroke-dasharray="251.2"
+                                        stroke-dashoffset="0" />
+                                </svg>
+                                <span class="absolute text-lg font-bold text-white font-mono">Failed</span>
+                            </div>
                             @endif
 
                             <div class="flex items-center gap-4 text-[10px] font-mono text-slate-500 uppercase tracking-tighter">

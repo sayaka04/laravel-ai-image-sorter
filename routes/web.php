@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StorageController;
 use App\Http\Controllers\TestingController;
 use App\Http\Controllers\UploadQueueController;
 use Illuminate\Support\Facades\Route;
@@ -31,17 +32,17 @@ Route::middleware('auth')->group(function () {
 require __DIR__ . '/auth.php';
 
 
-// Route::resource('albums', AlbumController::class);
-// Route::resource('categories', CategoryController::class);
-// Route::resource('files', FileController::class);
-// Route::resource('upload_queues', UploadQueueController::class);
+Route::resource('albums', AlbumController::class);
+Route::resource('categories', CategoryController::class);
+Route::resource('files', FileController::class);
+Route::resource('upload_queues', UploadQueueController::class);
 
-Route::resources([
-    'albums' => AlbumController::class,
-    'categories' => CategoryController::class,
-    'files' => FileController::class,
-    'upload_queues' => UploadQueueController::class,
-]);
+// Route::resources([
+//     'albums' => AlbumController::class,
+//     'categories' => CategoryController::class,
+//     'files' => FileController::class,
+//     'upload_queues' => UploadQueueController::class,
+// ]);
 
 
 Route::get('/testing', [TestingController::class, 'index'])->name('testing.index');
@@ -49,8 +50,13 @@ Route::get('/testing', [TestingController::class, 'index'])->name('testing.index
 Route::view('/test', 'test');
 Route::view('/template', 'template.index');
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-Route::get('/download-folder/{path?}', [App\Http\Controllers\DownloadController::class, 'downloadFolder'])
+Route::get('/download-folder/{path?}', [StorageController::class, 'downloadFolder'])
     ->where('path', '.*')
     ->name('download.folder');
+
+
+Route::get('/file/{filePath}', [StorageController::class, 'getFile'])
+    ->where('filePath', '.*')
+    ->name('getFile');

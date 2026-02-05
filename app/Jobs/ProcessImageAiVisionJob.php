@@ -46,12 +46,12 @@ class ProcessImageAiVisionJob extends AIConfig implements ShouldQueue
             $this->updateStatus(UploadStatus::IMAGE_PROCESSING);
 
             // 1.5. NEW: Read the file from storage and Encode to Base64
-            // We use the 'public' disk because that is where the controller stored it.
-            if (!Storage::disk('public')->exists($this->uploadQueue->file_path)) {
+            // We use the 'local' disk because that is where the controller stored it.
+            if (!Storage::disk('local')->exists($this->uploadQueue->file_path)) {
                 throw new \Exception("File not found at path: " . $this->uploadQueue->file_path);
             }
 
-            $imageContents = Storage::disk('public')->get($this->uploadQueue->file_path);
+            $imageContents = Storage::disk('local')->get($this->uploadQueue->file_path);
             $base64Image = base64_encode($imageContents);
 
             // 2. The HTTP Call
@@ -103,7 +103,9 @@ class ProcessImageAiVisionJob extends AIConfig implements ShouldQueue
     public function failed(\Exception $exception)
     {
         $this->reportError($exception, 'Job failed permanently');
-        $this->uploadQueue->update(['status' => UploadStatus::FAILED->value]);
+        Storage::disk('local')->delete($this->uploadQueue->file_path);
+        Log::info('deleted file at path: ' . $this->uploadQueue->file_path);
+        $this->uploadQueue->update(['status' => UploadStatus::FAILED]);
     }
 
     /*

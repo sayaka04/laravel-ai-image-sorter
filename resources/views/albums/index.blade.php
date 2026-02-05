@@ -25,7 +25,10 @@
 
                     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
                         <div>
-                            <h1 class="text-2xl md:text-3xl font-light text-white tracking-tight">Albums</h1>
+                            <div class="flex items-center gap-3">
+                                <div class="h-8 w-1 bg-ai-accent shadow-[0_0_10px_var(--neon-primary)] rounded-full"></div>
+                                <h1 class="text-3xl font-light text-white tracking-tight">Album</h1>
+                            </div>
                             <p class="text-sm text-slate-500 mt-1">Manage and organize your image collections</p>
                         </div>
 

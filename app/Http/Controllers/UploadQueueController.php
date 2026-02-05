@@ -109,8 +109,8 @@ class UploadQueueController extends AIConfig
 
             foreach ($files as $file) {
                 $originalName = $file->getClientOriginalName();
-                // Store file on 'public' disk
-                $path = $file->store("users/{$userId}/upload_queues", 'public');
+                // Store file on 'local' disk
+                $path = $file->store("users/{$userId}/upload_queues", 'local');
 
                 $upload_queue = UploadQueue::create([
                     'album_id'          => $album->id,

@@ -25,7 +25,10 @@
 
                     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
                         <div>
-                            <h1 class="text-2xl md:text-3xl font-light text-white tracking-tight">Files</h1>
+                            <div class="flex items-center gap-3">
+                                <div class="h-8 w-1 bg-ai-accent shadow-[0_0_10px_var(--neon-primary)] rounded-full"></div>
+                                <h1 class="text-3xl font-light text-white tracking-tight">Files</h1>
+                            </div>
                             <p class="text-sm text-slate-500 mt-1">This is the list of all your image files along with their album associations.</p>
                         </div>
 
@@ -115,12 +118,17 @@
                             @foreach($files as $file)
                             <div class="group bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-700 transition-all">
                                 <div class="aspect-video bg-slate-950 flex items-center justify-center relative overflow-hidden">
-                                    <div class="text-slate-800 group-hover:scale-110 transition-transform duration-500">
-                                        <svg class="w-12 h-12" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                        </svg>
+
+                                    {{-- REPLACEMENT START: Replaced SVG icon with Image tag --}}
+                                    <img
+                                        src="{{ route('getFile', ['filePath' => $file->file_path]) }}"
+                                        alt="{{ $file->file_name }}"
+                                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                                    {{-- REPLACEMENT END --}}
+
+                                    <div class="absolute top-2 right-2 px-2 py-1 bg-slate-900/80 backdrop-blur-md rounded text-[9px] font-mono text-slate-400 border border-slate-800 uppercase">
+                                        {{ pathinfo($file->file_name, PATHINFO_EXTENSION) }}
                                     </div>
-                                    <div class="absolute top-2 right-2 px-2 py-1 bg-slate-900/80 backdrop-blur-md rounded text-[9px] font-mono text-slate-400 border border-slate-800 uppercase">PNG</div>
                                 </div>
 
                                 <div class="p-4 space-y-3">
@@ -135,9 +143,13 @@
                                     </div>
 
                                     <div class="flex gap-2 pt-1">
-                                        <a href="/view" class="flex-1 py-2 bg-white hover:bg-slate-200 text-slate-900 rounded text-[10px] font-bold uppercase tracking-tighter transition-all text-center">
+                                        <a
+                                            href="{{ route('getFile', ['filePath' => $file->file_path]) }}"
+                                            download="{{ $file->file_name }}"
+                                            class="flex-1 py-2 bg-white hover:bg-slate-200 text-slate-900 rounded text-[10px] font-bold uppercase tracking-tighter transition-all text-center">
                                             Download
                                         </a>
+
 
                                         <a href="/delete" class="flex-1 py-2 bg-slate-800 hover:bg-red-900/40 text-slate-300 hover:text-red-200 rounded text-[10px] font-bold uppercase tracking-tighter transition-all text-center">
                                             Delete

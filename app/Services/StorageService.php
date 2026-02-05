@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -16,7 +17,7 @@ class StorageService
      * @param string $disk Disk name ('public' by default)
      * @return array ['size' => '1.23 MB', 'total_files' => 10]
      */
-    public function getFolderInfo(string $directory, string $disk = 'public'): array
+    public function getFolderInfo(string $directory, string $disk = 'local'): array
     {
         $sizeBytes = 0;
         $files = Storage::disk($disk)->allFiles($directory);
@@ -66,7 +67,7 @@ class StorageService
      * @return string Full path to the temporary ZIP file
      * @throws \RuntimeException
      */
-    public function zipFolder(string $folderPath, string $disk = 'public'): string
+    public function zipFolder(string $folderPath, string $disk = 'local'): string
     {
         $basePath = storage_path('app/' . $disk . DIRECTORY_SEPARATOR . $folderPath);
 
@@ -135,5 +136,50 @@ class StorageService
         }
 
         return $files;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public function showFile($filepath)
+    {
+
+        $finalFilePath = 'users' . '/' . Auth::user()->id . '/' .  $filepath;
+
+        Log::info("Filename: " . $finalFilePath);
+
+        if (!Auth::user()) {
+            abort(403, 'Unauthorized access');
+        }
+
+        Log::info("Attempting to access file: " . $finalFilePath);
+
+        // Use the 'public' disk that maps to storage/app/public
+        $disk = Storage::disk('local');
+
+        Log::info("Checking disk: " . $finalFilePath);
+
+        if (!$disk->exists($finalFilePath)) {
+            abort(404, 'File not found: ' . $finalFilePath);
+        } else {
+            // Log file existence for debugging
+            Log::info("File found: " . $finalFilePath);
+        }
+
+        $file = $disk->get($finalFilePath);
+        $type = $disk->mimeType($finalFilePath);
+
+        return response($file, 200)->header("Content-Type", $type);
     }
 }

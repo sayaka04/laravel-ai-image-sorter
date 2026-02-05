@@ -76,7 +76,9 @@ class ProcessImageAiTextJob implements ShouldQueue
     public function failed(\Exception $exception)
     {
         $this->reportError($exception, 'Job failed permanently');
-        $this->uploadQueue->update(['status' => UploadStatus::FAILED->value]);
+        Storage::disk('local')->delete($this->uploadQueue->file_path);
+        Log::info('deleted file at path: ' . $this->uploadQueue->file_path);
+        $this->uploadQueue->update(['status' => UploadStatus::FAILED]);
     }
 
 
@@ -112,25 +114,26 @@ class ProcessImageAiTextJob implements ShouldQueue
         // BUG FIX: Use the category name provided by the AI/Method argument
         $categoryName = $category->category_name;
 
-        $destinationPath = "users/{$user->id}/{$album->album_name}/{$categoryName}";
+        $destinationPath = "users/{$user->id}/upload_sorted/{$album->album_name}/{$categoryName}";
+        $dbDestinationPath = "upload_sorted/{$album->album_name}/{$categoryName}";
 
-        if (!Storage::disk('public')->exists($destinationPath)) {
-            Storage::disk('public')->makeDirectory($destinationPath);
+        if (!Storage::disk('local')->exists($destinationPath)) {
+            Storage::disk('local')->makeDirectory($destinationPath);
         }
 
-        $newFilename = now()->format('Y-m-d') . '_' . basename($this->uploadQueue->original_filename);
+        $newFilename = now()->format('Y-m-d_H-i-s') . '_' . basename($this->uploadQueue->original_filename);
         $from = $this->uploadQueue->file_path;
         $to = "{$destinationPath}/{$newFilename}";
 
-        if (Storage::disk('public')->copy($from, $to)) {
+        if (Storage::disk('local')->copy($from, $to)) {
             \App\Models\File::create([
                 'file_name' => $newFilename,
-                'file_path' => $to,
+                'file_path' => $dbDestinationPath . '/' . $newFilename,
                 'category_id' => $category->id,
                 'raw_ai_response' => $innerJson,
             ]);
 
-            Storage::disk('public')->delete($from);
+            Storage::disk('local')->delete($from);
             Log::info("File archived to: {$to}");
         }
     }

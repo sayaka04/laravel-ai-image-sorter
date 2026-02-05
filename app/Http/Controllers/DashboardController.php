@@ -17,7 +17,7 @@ class DashboardController extends Controller
 
         $max_storage_mb = 200;
         $storageService = new StorageService();
-        $folderSize = $storageService->getFolderInfo('users/1', 'public');
+        $folderSize = $storageService->getFolderInfo('users/1', 'local');
         Log::info("Folder size: " . json_encode($folderSize));
 
         $albums_count = auth()->user()->albums()->count();

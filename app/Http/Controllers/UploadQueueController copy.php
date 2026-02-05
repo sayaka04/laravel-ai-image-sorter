@@ -70,7 +70,7 @@ class UploadQueueController extends Controller
                 $originalName = $file->getClientOriginalName();
 
                 // Generate a secure, user-namespaced path
-                $path = $file->store("users/{$userId}/upload_queues", 'public');
+                $path = $file->store("users/{$userId}/upload_queues", 'local');
 
                 // Create record in the database
                 UploadQueue::create([
@@ -184,7 +184,7 @@ EOT;
     //         $file = $request->file('file');
     //         $originalName = $file->getClientOriginalName();
 
-    //         // Store file safely in 'private' storage
+    //         // Store file safely in 'local' storage
     //         // $path = $file->store('uploads/queues');
     //         $path = $file->store('users/' . $request->user()->id . '/upload_queues', 'public');
 

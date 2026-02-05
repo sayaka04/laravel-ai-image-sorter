@@ -2,13 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 use App\Services\StorageService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class DownloadController extends Controller
+class StorageController extends Controller
 {
+    public function getFile(StorageService $storageService, $filePath = "")
+    {
+        $filePath = $filePath;
+        return $storageService->showFile($filePath);
+    }
+
+
     public function downloadFolder(StorageService $storageService, $path = '')
     {
         if ($path == '') {
@@ -16,7 +22,7 @@ class DownloadController extends Controller
         } else {
             $folderPath = 'users/' . Auth::id() . '/' . $path;
         }
-        $zipPath = $storageService->zipFolder($folderPath, 'public');
+        $zipPath = $storageService->zipFolder($folderPath, 'private');
 
         return response()->download($zipPath, 'SortAI_' . now()->format('Y-m-d_H-i-s') . '.zip')->deleteFileAfterSend(true);
     }

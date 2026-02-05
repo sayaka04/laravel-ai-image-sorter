@@ -42,14 +42,15 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        Storage::disk('public')->makeDirectory('users/' . $user->id);
-        Storage::disk('public')->makeDirectory('users/' . $user->id . '/upload_queues');
+        Storage::disk('local')->makeDirectory('users/' . $user->id);
+        Storage::disk('local')->makeDirectory('users/' . $user->id . '/upload_queues');
+        Storage::disk('local')->makeDirectory('users/' . $user->id . '/upload_sorted');
 
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route('dashboard.index', absolute: false));
     }
 }

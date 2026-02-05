@@ -13,7 +13,7 @@ class CategoryController extends Controller
         // Start with categories belonging to the user's albums
         $query = Category::whereHas('album', function ($q) use ($request) {
             $q->where('user_id', $request->user()->id);
-        });
+        })->orderBy('created_at', 'asc');
 
         // Filter by Search (Category Name or AI Rules)
         $query->when($request->filled('search'), function ($q) use ($request) {
@@ -83,15 +83,40 @@ class CategoryController extends Controller
             ->with('message', 'Category created successfully!');
     }
 
-    public function show(Category $category)
+    // In App\Http\Controllers\CategoryController.php
+
+    public function show(Request $request, Category $category)
     {
-        // Security check
-        if ($category->album->user_id !== request()->user()->id) {
+        // Security check (ensure user owns the album this category belongs to)
+        if ($category->album->user_id !== $request->user()->id) {
             abort(403);
         }
 
-        $category->load('files');
-        return view('categories.show', compact('category'));
+        // 1. Start the query on the category's files
+        $query = $category->files()->orderBy('created_at', 'asc');
+
+        // 2. Apply Search Filter
+        $query->when($request->filled('search'), function ($q) use ($request) {
+            $q->where('file_name', 'like', '%' . $request->search . '%');
+        });
+
+        // 3. Apply Date Filters
+        $query->when($request->filled('from'), function ($q) use ($request) {
+            $q->whereDate('created_at', '>=', $request->from);
+        });
+
+        $query->when($request->filled('to'), function ($q) use ($request) {
+            $q->whereDate('created_at', '<=', $request->to);
+        });
+
+        // 4. Paginate results
+        $files = $query->latest()->paginate(20)->withQueryString();
+
+        return view('categories.show', [
+            'category' => $category,
+            'files' => $files, // Pass the paginated files separately
+            'title' => 'Category: ' . $category->category_name,
+        ]);
     }
 
     public function edit(Category $category)

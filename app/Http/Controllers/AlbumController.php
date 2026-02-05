@@ -12,7 +12,7 @@ class AlbumController extends Controller
     public function index(Request $request)
     {
         $query = Album::where('user_id', $request->user()->id)
-            ->withCount(['categories', 'uploadQueues']);
+            ->withCount(['categories', 'uploadQueues'])->orderBy('created_at', 'asc');
 
         // Search Filter
         $query->when($request->filled('search'), function ($q) use ($request) {
@@ -55,7 +55,7 @@ class AlbumController extends Controller
         // Automatically assign the logged-in user
         $album = $request->user()->albums()->create($validated);
 
-        Storage::disk('public')->makeDirectory('users/' . $request->user()->id . '/' . $album->album_name);
+        Storage::disk('local')->makeDirectory('users/' . $request->user()->id . '/upload_sorted/' . $album->album_name);
 
         return redirect()
             ->route('albums.show', $album)
@@ -66,17 +66,36 @@ class AlbumController extends Controller
             ]);
     }
 
-    public function show(Album $album)
+    public function show(Request $request, Album $album)
     {
-        // Security: Ensure user owns the album (Policy is better, but this is robust)
-        if ($album->user_id !== request()->user()->id) {
+        // Security: Ensure user owns the album
+        if ($album->user_id !== $request->user()->id) {
             abort(403, 'Unauthorized');
         }
 
-        // Eager load categories for the detailed view
-        $album->load('categories');
+        // Start Query on the Categories Relationship
+        $query = $album->categories()->orderBy('created_at', 'asc');
+
+        // Search Filter
+        $query->when($request->filled('search'), function ($q) use ($request) {
+            $q->where('category_name', 'like', '%' . $request->search . '%');
+        });
+
+        // Date Filters
+        $query->when($request->filled('from'), function ($q) use ($request) {
+            $q->whereDate('created_at', '>=', $request->from);
+        });
+
+        $query->when($request->filled('to'), function ($q) use ($request) {
+            $q->whereDate('created_at', '<=', $request->to);
+        });
+
+        // Pagination
+        $categories = $query->latest()->paginate(20)->withQueryString();
+
         return view('albums.show', [
             'album' => $album,
+            'categories' => $categories, // Pass the paginated variable
             'title'   => 'SmartSorter AI - Album Details',
             'header_name' => 'Albums/Content',
         ]);
