@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Table;
 
+use App\Http\Controllers\Controller;
 use App\Models\Album;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+
 
 class AlbumController extends Controller
 {
@@ -41,7 +43,7 @@ class AlbumController extends Controller
     {
         return view('albums.create', [
             'title'  => 'SmartSorter AI - Albums',
-            'header_name' => 'Albums/Create',
+            'header_name' => 'Create Album',
         ]);
     }
 
@@ -62,7 +64,6 @@ class AlbumController extends Controller
             ->with([
                 'success' => 'Album created successfully',
                 'title'   => 'SmartSorter AI - Albums',
-                'header_name' => 'Albums',
             ]);
     }
 
@@ -97,7 +98,7 @@ class AlbumController extends Controller
             'album' => $album,
             'categories' => $categories, // Pass the paginated variable
             'title'   => 'SmartSorter AI - Album Details',
-            'header_name' => 'Albums/Content',
+            'header_name' => 'Album: ' . $album->album_name,
         ]);
     }
 

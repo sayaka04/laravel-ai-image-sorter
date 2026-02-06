@@ -120,10 +120,14 @@
                                 <div class="aspect-video bg-slate-950 flex items-center justify-center relative overflow-hidden">
 
                                     {{-- REPLACEMENT START: Replaced SVG icon with Image tag --}}
-                                    <img
-                                        src="{{ route('getFile', ['filePath' => $file->file_path]) }}"
-                                        alt="{{ $file->file_name }}"
-                                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+
+                                    <a href="{{ route('files.show', $file) }}" class="block w-full h-full">
+                                        <img
+                                            src="{{ route('getFile', ['filePath' => $file->file_path]) }}"
+                                            alt="{{ $file->file_name }}"
+                                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                                    </a>
+
                                     {{-- REPLACEMENT END --}}
 
                                     <div class="absolute top-2 right-2 px-2 py-1 bg-slate-900/80 backdrop-blur-md rounded text-[9px] font-mono text-slate-400 border border-slate-800 uppercase">
@@ -151,9 +155,18 @@
                                         </a>
 
 
-                                        <a href="/delete" class="flex-1 py-2 bg-slate-800 hover:bg-red-900/40 text-slate-300 hover:text-red-200 rounded text-[10px] font-bold uppercase tracking-tighter transition-all text-center">
-                                            Delete
-                                        </a>
+                                        <form action="{{ route('files.destroy', $file) }}" method="POST" class="flex-1">
+                                            @csrf
+                                            @method('DELETE')
+
+                                            <button type="submit"
+                                                onclick="return confirm('Are you sure you want to delete this? This cannot be undone.')"
+                                                class="w-full py-2 bg-slate-800 hover:bg-red-900/40 text-slate-300 hover:text-red-200 rounded text-[10px] font-bold uppercase tracking-tighter transition-all text-center">
+                                                Delete
+                                            </button>
+                                        </form>
+
+
                                     </div>
                                 </div>
                             </div>

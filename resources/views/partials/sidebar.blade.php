@@ -12,7 +12,7 @@
                 <i class="ph ph-aperture"></i>
             </div>
         </div>
-        <span class="font-bold text-lg tracking-wide link-text">SmartSorter AI</span>
+        <span class="text-white font-bold tracking-wide link-text text-xl">SmartSorter<span class="text-indigo-500">AI</span></span>
     </div>
 
     <nav class="flex-1 overflow-y-auto py-4 space-y-1">

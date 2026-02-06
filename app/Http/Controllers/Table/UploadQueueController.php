@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Table;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\UploadQueue;
 use App\Models\Album;
@@ -75,7 +77,7 @@ class UploadQueueController extends AIConfig
             'albums' => $albums,
             'selectedAlbumId' => $selectedAlbumId,
             'title'   => 'SmartSorter AI - Queues',
-            'header_name' => 'Queues/Create',
+            'header_name' => 'Add to Queue',
         ]);
     }
     public function store(Request $request)
@@ -144,7 +146,7 @@ class UploadQueueController extends AIConfig
         return redirect()->route('upload_queues.index')
             ->with([
                 'message' => 'Successfully queued ' . $count . ' files for AI processing.',
-                'title'   => 'SmartSorter AI - Albums',
+                'title'   => 'Albums',
                 'header_name' => 'Albums',
             ]);
     }
@@ -158,7 +160,7 @@ class UploadQueueController extends AIConfig
 
         return view('upload_queues.show', [
             'uploadQueue' => $uploadQueue,
-            'title'   => 'SmartSorter AI - Queue Details',
+            'title'   => 'Queue Details',
             'header_name' => 'Queue Details',
         ]);
     }

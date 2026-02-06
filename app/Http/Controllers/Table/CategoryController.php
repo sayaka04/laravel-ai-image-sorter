@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Table;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Category;
 use App\Models\Album;
@@ -58,7 +60,7 @@ class CategoryController extends Controller
             'albums' => $albums,
             'selectedAlbumId' => $selectedAlbumId,
             'title'   => 'SmartSorter AI - Create Category',
-            'header_name' => 'Categories/Create',
+            'header_name' => 'Create Category',
         ]);
     }
 
@@ -116,6 +118,7 @@ class CategoryController extends Controller
             'category' => $category,
             'files' => $files, // Pass the paginated files separately
             'title' => 'Category: ' . $category->category_name,
+            'header_name' => 'Category: ' . $category->category_name,
         ]);
     }
 

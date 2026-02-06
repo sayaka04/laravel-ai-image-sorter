@@ -1,27 +1,28 @@
 <?php
 
-use App\Http\Controllers\AlbumController;
-use App\Http\Controllers\CategoryController;
+
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\FileController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StorageController;
-use App\Http\Controllers\TestingController;
-use App\Http\Controllers\UploadQueueController;
+
+use App\Http\Controllers\Table\AlbumController;
+use App\Http\Controllers\Table\CategoryController;
+use App\Http\Controllers\Table\FileController;
+use App\Http\Controllers\Table\UploadQueueController;
+
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome', [
-        'title' => 'SmartSorter AI'
-    ]);
+    return redirect()->route('home');
 })->name('/');
 
-// Route::get('/dashboard', function () {
-//     return view('dashboard', [
-//         'title' => 'SmartSorter AI - Dashboard',
-//         'header_name' => 'Dashboard'
-//     ]);
-// })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/home', function () {
+    return view('home', [
+        'title' => 'SmartSorter AI'
+    ]);
+})->name('home');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -29,34 +30,23 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+
 require __DIR__ . '/auth.php';
 
 
-Route::resource('albums', AlbumController::class);
-Route::resource('categories', CategoryController::class);
-Route::resource('files', FileController::class);
-Route::resource('upload_queues', UploadQueueController::class);
+Route::middleware('auth')->group(function () {
 
-// Route::resources([
-//     'albums' => AlbumController::class,
-//     'categories' => CategoryController::class,
-//     'files' => FileController::class,
-//     'upload_queues' => UploadQueueController::class,
-// ]);
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::resource('albums', AlbumController::class);
+    Route::resource('categories', CategoryController::class);
+    Route::resource('files', FileController::class);
+    Route::resource('upload_queues', UploadQueueController::class);
 
+    Route::get('/download-folder/{path?}', [StorageController::class, 'downloadFolder'])
+        ->where('path', '.*')
+        ->name('download.folder');
 
-Route::get('/testing', [TestingController::class, 'index'])->name('testing.index');
-
-Route::view('/test', 'test');
-Route::view('/template', 'template.index');
-
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-Route::get('/download-folder/{path?}', [StorageController::class, 'downloadFolder'])
-    ->where('path', '.*')
-    ->name('download.folder');
-
-
-Route::get('/file/{filePath}', [StorageController::class, 'getFile'])
-    ->where('filePath', '.*')
-    ->name('getFile');
+    Route::get('/file/{filePath}', [StorageController::class, 'getFile'])
+        ->where('filePath', '.*')
+        ->name('getFile');
+});

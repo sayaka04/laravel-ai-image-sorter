@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Table;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\File;
 use App\Models\Category;
@@ -75,7 +77,7 @@ class FileController extends Controller
         return view('files.create', [
             'categories' => $categories,
             'title'   => 'SmartSorter AI - Create File',
-            'header_name' => 'Files/Create',
+            'header_name' => 'Add File',
         ]);
     }
 
@@ -107,7 +109,10 @@ class FileController extends Controller
             abort(403);
         }
 
-        return view('files.show', compact('file'));
+        return view('files.show', [
+            'file' => $file,
+            'header_name' => 'File: ' . $file->file_name,
+        ]);
     }
 
     public function edit(File $file)

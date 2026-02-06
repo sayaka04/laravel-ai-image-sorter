@@ -50,6 +50,7 @@ class DashboardController extends Controller
             'queues_count' => $queues_count,
             'queues' => $queues,
             'folderSize' => $folderSize,
+            'header_name' => 'Dashboard',
         ]);
     }
 }
