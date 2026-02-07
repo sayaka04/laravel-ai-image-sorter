@@ -46,9 +46,15 @@
                         </div>
 
                         <div class="flex flex-col sm:flex-row gap-3">
-                        <a href="{{ route('download.folder', 'upload_sorted/'.$category->album->album_name . '/' . $category->category_name) }}" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium rounded border border-slate-700 transition-all whitespace-nowrap decoration-none">
+                            <a href="{{ route('categories.edit', $category) }}" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-ai-accent hover:bg-indigo-500 text-white text-xs font-medium rounded shadow-[0_0_15px_-5px_rgba(99,102,241,0.5)] transition-all whitespace-nowrap decoration-none">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+                                </svg>
+                                Edit Category
+                            </a>
+                            <a href="{{ route('download.folder', 'upload_sorted/'.$category->album->album_name . '/' . $category->category_name) }}" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium rounded border border-slate-700 transition-all whitespace-nowrap decoration-none">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                                 </svg>
                                 Download ZIP
                             </a>
@@ -103,8 +109,8 @@
                 </div>
             </section>
 
-            <main class="flex-1 p-5">
-                <section class="p-6 bg-slate-950">
+            <main class="flex-1 mb-10">
+                <section class="bg-slate-950 mb-10">
                     <div class="space-y-6">
                         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                             @forelse($files as $file)

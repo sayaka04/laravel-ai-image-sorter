@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use ZipArchive;
 
+use function Laravel\Prompts\info;
+
 class StorageService
 {
     /**
@@ -27,6 +29,13 @@ class StorageService
             $sizeBytes += Storage::disk($disk)->size($file);
         }
 
+        // All folders (recursive)
+        $folders = Storage::disk($disk)->allDirectories($directory);
+        $totalFolders = count($folders);
+
+
+        Log::info("testing: " . $totalFolders);
+
         return [
             'size_bytes' => $sizeBytes,                   // integer, raw bytes
             'size_kb'    => $sizeBytes / 1024,           // float, KB
@@ -34,6 +43,7 @@ class StorageService
             'size_gb'    => $sizeBytes / 1024 / 1024 / 1024, // float, GB
             'size_human' => $this->formatBytes($sizeBytes),  // string for display
             'total_files' => $totalFiles,
+            'total_folders' => $totalFolders,
         ];
     }
 
@@ -181,5 +191,17 @@ class StorageService
         $type = $disk->mimeType($finalFilePath);
 
         return response($file, 200)->header("Content-Type", $type);
+    }
+
+
+    public function renameFolder($oldPath, $newPath)
+    {
+
+        Log::info('storage disk: ' . Storage::disk('local')->path(''));
+        Log::info($oldPath);
+        Log::info($newPath);
+
+        // Returns true on success, false on failure
+        return Storage::disk('local')->move($oldPath, $newPath);
     }
 }

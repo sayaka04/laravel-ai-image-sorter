@@ -79,8 +79,8 @@
                 </div>
             </section>
 
-            <main class="flex-1 p-5">
-                <section class="p-6 bg-slate-950">
+            <main class="flex-1 mb-10">
+                <section class="bg-slate-950 mb-10">
                     <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-2xl">
                         <div class="grid grid-cols-12 gap-4 px-6 py-4 bg-slate-950/50 border-b border-slate-800 text-[10px] font-mono uppercase text-slate-500 tracking-[0.2em]">
                             <div class="col-span-3">Category</div>

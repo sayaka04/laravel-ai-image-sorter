@@ -24,7 +24,10 @@
                 <div class="flex flex-col gap-4 shrink-0">
                     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
                         <div>
-                            <h1 class="text-2xl md:text-3xl font-light text-white tracking-tight">Add to queue</h1>
+                            <div class="flex items-center gap-3">
+                                <div class="h-8 w-1 bg-ai-accent shadow-[0_0_10px_var(--neon-primary)] rounded-full"></div>
+                                <h1 class="text-3xl font-light text-white tracking-tight">Add to Queue</h1>
+                            </div>
                             <p class="text-sm text-slate-500 mt-1">Upload images to an existing album to queue them for sorting</p>
                         </div>
 
@@ -41,8 +44,8 @@
                 </div>
             </section>
 
-            <main class="flex-1 p-5">
-                <section class="p-6 bg-slate-950">
+            <main class="flex-1 mb-10">
+                <section class="bg-slate-950 mb-10">
 
                     <form id="upload-form" action="{{ route('upload_queues.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                         @csrf

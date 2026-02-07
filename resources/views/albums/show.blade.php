@@ -43,9 +43,15 @@
                                 </svg>
                                 Add New Album
                             </a>
+                            <a href="{{ route('albums.edit', $album) }}" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-ai-accent hover:bg-indigo-500 text-white text-xs font-medium rounded shadow-[0_0_15px_-5px_rgba(99,102,241,0.5)] transition-all whitespace-nowrap decoration-none">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+                                </svg>
+                                Edit Album
+                            </a>
                             <a href="{{ route('download.folder', 'upload_sorted/'.$album->album_name) }}" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 text-indigo-300 hover:text-indigo-200 text-xs font-medium rounded transition-all whitespace-nowrap decoration-none">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                                 </svg>
                                 Download Album ZIP
                             </a>
@@ -97,8 +103,8 @@
                 </div>
             </section>
 
-            <main class="flex-1 p-5">
-                <section class="p-6 bg-slate-950">
+            <main class="flex-1 mb-10">
+                <section class="bg-slate-950 mb-10">
 
                     @if($album->categories()->exists())
                     <form id="upload-form" action="{{ route('upload_queues.store') }}" method="POST" enctype="multipart/form-data" class="w-full mb-8">
@@ -218,12 +224,12 @@
 
                                 <div class="flex items-center justify-between mb-3 px-1">
                                     <div class="text-center">
-                                        <p class="text-[8px] text-slate-500 uppercase font-black">Objs</p>
-                                        <p class="text-xs text-white font-mono">1.2k</p>
+                                        <p class="text-[8px] text-slate-500 uppercase font-black">Files</p>
+                                        <p class="text-xs text-white font-mono">{{ $category->folderSize['total_files'] }}</p>
                                     </div>
                                     <div class="text-center">
                                         <p class="text-[8px] text-slate-500 uppercase font-black">Size</p>
-                                        <p class="text-xs text-white font-mono">4.2GB</p>
+                                        <p class="text-xs text-white font-mono">{{ $category->folderSize['size_human'] }}</p>
                                     </div>
                                 </div>
 

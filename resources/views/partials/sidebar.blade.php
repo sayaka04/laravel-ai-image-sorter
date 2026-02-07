@@ -5,15 +5,19 @@
     <button id="toggle-btn" class="hidden md:flex absolute -right-3 top-8 bg-indigo-600 text-white rounded-full p-1 shadow-lg hover:bg-indigo-500 transition-colors z-50 items-center justify-center w-6 h-6">
         <i class="ph-bold ph-caret-left toggle-arrow text-xs"></i>
     </button>
+    <a href="{{ route('home') }}">
 
-    <div class="h-16 flex items-center shrink-0 border-b border-slate-800">
-        <div class="w-20 shrink-0 flex items-center justify-center">
-            <div class="w-8 h-8 rounded bg-indigo-600 flex items-center justify-center text-white">
-                <i class="ph ph-aperture"></i>
+        <div class="h-16 flex items-center shrink-0 border-b border-slate-800">
+            <div class="w-20 shrink-0 flex items-center justify-center">
+                <div class="w-8 h-8 rounded bg-indigo-600 flex items-center justify-center text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m6.75 7.5 3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0 0 21 18V6a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 6v12a2.25 2.25 0 0 0 2.25 2.25Z" />
+                    </svg>
+                </div>
             </div>
+            <span class="text-white font-bold tracking-wide link-text text-xl">SmartSorter<span class="text-indigo-500">AI</span></span>
         </div>
-        <span class="text-white font-bold tracking-wide link-text text-xl">SmartSorter<span class="text-indigo-500">AI</span></span>
-    </div>
+    </a>
 
     <nav class="flex-1 overflow-y-auto py-4 space-y-1">
 

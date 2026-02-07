@@ -18,9 +18,9 @@
 
         @include('partials.navbar')
 
-        <main class="flex-1 p-5 overflow-y-auto">
+        <main class="flex-1 p-5 overflow-y-auto mb-10">
 
-            <section class="p-6 bg-slate-950">
+            <section class="bg-slate-950">
                 <div class="w-full flex flex-col gap-6">
 
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -247,6 +247,7 @@
             </section>
 
         </main>
+        <br><br>
 
     </div>
 

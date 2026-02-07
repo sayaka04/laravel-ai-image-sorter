@@ -13,11 +13,11 @@ return new class extends Migration
 
             // Explicitly linking to 'albums' table
             $table->foreignId('album_id')->constrained('albums')->cascadeOnDelete();
-
             $table->string('category_name');
             $table->text('ai_rules')->nullable(); // Stores instructions for the AI
-
             $table->timestamps();
+
+            $table->unique(['album_id', 'category_name']);
         });
     }
 

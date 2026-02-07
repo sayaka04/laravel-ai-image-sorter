@@ -33,9 +33,9 @@
                 </div>
             </section>
 
-            <main class="flex-1 p-0">
+            <main class="flex-1 m-10">
                 <section>
-                    <div class="w-full flex justify-center">
+                    <div class="w-full flex justify-center mb-10">
 
                         <div class="space-y-6 w-full max-w-4xl">
 

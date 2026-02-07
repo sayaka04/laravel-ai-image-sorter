@@ -57,10 +57,10 @@
                 </div>
             </section>
 
-            <main class="flex-1 p-0">
+            <main class="flex-1 mb-10">
                 <section>
 
-                    <div class="space-y-6">
+                    <div class="space-y-6 mb-10">
 
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 

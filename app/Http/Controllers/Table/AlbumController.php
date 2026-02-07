@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Table;
 
 use App\Http\Controllers\Controller;
 use App\Models\Album;
+use App\Services\StorageService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Validation\Rule;
 
 class AlbumController extends Controller
 {
@@ -32,6 +35,15 @@ class AlbumController extends Controller
 
         $albums = $query->latest()->paginate(20)->withQueryString();
 
+        $albums->getCollection()->transform(function ($album) {
+
+            $storageService = new StorageService();
+            $folderSize = $storageService->getFolderInfo('users/' . Auth::id() . "/upload_sorted/" . $album->album_name, 'local');
+
+            $album->folderSize = $folderSize;
+            return $album;
+        });
+
         return view('albums.index', [
             'albums' => $albums,
             'title'  => 'SmartSorter AI - Albums',
@@ -50,21 +62,39 @@ class AlbumController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'album_name' => 'required|string|max:255',
+            'album_name' => [
+                'required',
+                'string',
+                'max:255',
+                // Strict regex for valid folder names
+                'regex:/^[^\\/?%*:|"<>\.]+$/',
+                // COMPOSITE UNIQUE CHECK: Enforce unique name per user
+                Rule::unique('albums', 'album_name')->where(function ($query) use ($request) {
+                    return $query->where('user_id', Auth::id());
+                }),
+            ],
             'description' => 'nullable|string|max:1000',
         ]);
 
-        // Automatically assign the logged-in user
-        $album = $request->user()->albums()->create($validated);
+        $validated['user_id'] = Auth::id();
 
-        Storage::disk('local')->makeDirectory('users/' . $request->user()->id . '/upload_sorted/' . $album->album_name);
 
-        return redirect()
-            ->route('albums.show', $album)
-            ->with([
-                'success' => 'Album created successfully',
-                'title'   => 'SmartSorter AI - Albums',
+        // 2. Create Folder on Disk
+        $path = 'users/' . Auth::id() . '/upload_sorted/' . $validated['album_name'];
+
+        Storage::disk('local')->makeDirectory($path);
+
+        if (Storage::disk('local')->makeDirectory($path)) {
+            Album::create($validated);
+        } else {
+            return redirect()->back()->with([
+                'error' => "Something went wrong with creating this directory!"
             ]);
+        }
+
+        return redirect()->back()->with([
+            'success' => "Album created successfully!"
+        ]);
     }
 
     public function show(Request $request, Album $album)
@@ -94,6 +124,15 @@ class AlbumController extends Controller
         // Pagination
         $categories = $query->latest()->paginate(20)->withQueryString();
 
+        $categories->getCollection()->transform(function ($category) {
+
+            $storageService = new StorageService();
+            $folderSize = $storageService->getFolderInfo('users/' . Auth::id() . '/upload_sorted/' . $category->album->album_name . '/' . $category->category_name, 'local');
+
+            $category->folderSize = $folderSize;
+            return $category;
+        });
+
         return view('albums.show', [
             'album' => $album,
             'categories' => $categories, // Pass the paginated variable
@@ -102,20 +141,57 @@ class AlbumController extends Controller
         ]);
     }
 
+
+    public function edit(Album $album)
+    {
+        return view('albums.edit', [
+            'album' => $album,
+            'header_name' => 'Edit Album: ' . $album->album_name,
+        ]);
+    }
+
+
     public function update(Request $request, Album $album)
     {
+        // Authorization check
         if ($album->user_id !== $request->user()->id) {
             abort(403);
         }
 
         $validated = $request->validate([
-            'album_name' => 'sometimes|string|max:255',
+            'album_name' => [
+                'required',
+                'string',
+                'max:255',
+                // Strict regex for valid folder names
+                'regex:/^[^\\/?%*:|"<>\.]+$/',
+
+                // COMPOSITE UNIQUE CHECK
+
+                // COMPOSITE UNIQUE CHECK: Enforce unique name per user
+                Rule::unique('albums', 'album_name')
+                    ->where(function ($query) use ($request) {
+                        return $query->where('user_id', $request->user()->id);
+                    })->ignore($album->id),
+            ],
             'description' => 'nullable|string|max:1000',
         ]);
 
-        $album->update($validated);
+        $oldPath = 'users/' . Auth::id() . '/upload_sorted/' . $album->album_name;
+        $newPath = 'users/' . Auth::id() . '/upload_sorted/' . $validated['album_name'];
+        $storageService = new StorageService();
 
-        return response()->json(['message' => 'Album updated', 'data' => $album]);
+        if ($storageService->renameFolder($oldPath, $newPath)) {
+            $album->update($validated);
+        } else {
+            return redirect()->back()->with([
+                'error' => "Something went wrong with updating this directory!"
+            ]);
+        }
+
+        return redirect()->back()->with([
+            'success' => "Update Successful!"
+        ]);
     }
 
     public function destroy(Album $album)
@@ -129,6 +205,6 @@ class AlbumController extends Controller
         // For now, we just delete the record.
         $album->delete();
 
-        return response()->json(['message' => 'Album deleted']);
+        return redirect()->back();
     }
 }

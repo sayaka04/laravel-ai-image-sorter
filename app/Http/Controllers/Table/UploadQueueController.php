@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Table;
 
-use App\Http\Controllers\Controller;
-
 use App\Models\UploadQueue;
 use App\Models\Album;
 use App\Enums\UploadStatus;

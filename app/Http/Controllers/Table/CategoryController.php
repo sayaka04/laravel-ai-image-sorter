@@ -6,7 +6,11 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Category;
 use App\Models\Album;
+use App\Services\StorageService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
@@ -50,10 +54,8 @@ class CategoryController extends Controller
 
     public function create(Request $request)
     {
-        // Optional: Pre-select album if passed in URL
         $selectedAlbumId = $request->album_id;
 
-        // You might want to pass all albums for the dropdown
         $albums = $request->user()->albums;
 
         return view('categories.create', [
@@ -68,7 +70,19 @@ class CategoryController extends Controller
     {
         $validated = $request->validate([
             'album_id' => 'required|exists:albums,id',
-            'category_name' => 'required|string|max:255',
+            'category_name' => [
+                'required',
+                'string',
+                'max:255',
+                // Strict regex for valid folder names
+                'regex:/^[^\\/?%*:|"<>\.]+$/',
+
+                // COMPOSITE UNIQUE CHECK: Enforce unique name per user
+                Rule::unique('categories', 'category_name')
+                    ->where(function ($query) use ($request) {
+                        return $query->where('album_id', $request->album_id);
+                    }),
+            ],
             'ai_rules' => 'nullable|string',
         ]);
 
@@ -78,14 +92,21 @@ class CategoryController extends Controller
             abort(403, 'You do not own this album');
         }
 
-        Category::create($validated);
+        $album = Album::find($validated['album_id']);
+        $path = 'users/' . $request->user()->id . '/upload_sorted/' . $album->album_name . '/' . $validated['category_name'];
 
-        // FIX 2: Redirect instead of returning JSON
-        return redirect()->route('categories.index')
-            ->with('message', 'Category created successfully!');
+        if (Storage::disk('local')->makeDirectory($path)) {
+            Category::create($validated);
+        } else {
+            return redirect()->back()->with([
+                'error' => "Something went wrong with creating this directory!"
+            ]);
+        }
+
+        return redirect()->back()->with([
+            'success' => "Category created successfully!"
+        ]);
     }
-
-    // In App\Http\Controllers\CategoryController.php
 
     public function show(Request $request, Category $category)
     {
@@ -128,7 +149,10 @@ class CategoryController extends Controller
             abort(403);
         }
 
-        return view('categories.edit', compact('category'));
+        return view('categories.edit', [
+            'category' => $category,
+            'header_name' => 'Edit Category: ' . $category->category_name,
+        ]);
     }
 
     public function update(Request $request, Category $category)
@@ -138,15 +162,41 @@ class CategoryController extends Controller
         }
 
         $validated = $request->validate([
-            'category_name' => 'sometimes|string|max:255',
+            'category_name' => [
+                'required',
+                'string',
+                'max:255',
+
+                // Strict regex for valid folder names
+                'regex:/^[^\\/?%*:|"<>\.]+$/',
+
+                // COMPOSITE UNIQUE CHECK: Enforce unique name per user
+                Rule::unique('categories', 'category_name')
+                    ->where(function ($query) use ($category) {
+                        return $query->where('album_id', $category->album->id);
+                    })->ignore($category->id),
+            ],
             'ai_rules' => 'nullable|string',
         ]);
 
-        $category->update($validated);
 
-        // FIX 3: Redirect back to the album or category list
-        return redirect()->route('categories.index')
-            ->with('message', 'Category updated successfully');
+
+        $oldPath = 'users/' . Auth::id() . '/upload_sorted/' . $category->album->album_name . '/' . $category->category_name;
+        $newPath = 'users/' . Auth::id() . '/upload_sorted/' . $category->album->album_name . '/' . $validated['category_name'];
+
+        $storageService = new StorageService();
+
+        if ($storageService->renameFolder($oldPath, $newPath)) {
+            $category->update($validated);
+        } else {
+            return redirect()->back()->with([
+                'error' => "Something went wrong with updating this category directory!"
+            ]);
+        }
+
+        return redirect()->back()->with([
+            'success' => "Update Successful!"
+        ]);
     }
 
     public function destroy(Category $category)
@@ -157,7 +207,6 @@ class CategoryController extends Controller
 
         $category->delete();
 
-        // FIX 4: Redirect back
         return redirect()->route('categories.index')
             ->with('message', 'Category deleted');
     }

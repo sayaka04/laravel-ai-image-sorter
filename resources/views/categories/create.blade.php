@@ -25,7 +25,10 @@
 
                     <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
                         <div>
-                            <h1 class="text-2xl md:text-3xl font-light text-white tracking-tight">Create Category</h1>
+                            <div class="flex items-center gap-3">
+                                <div class="h-8 w-1 bg-ai-accent shadow-[0_0_10px_var(--neon-primary)] rounded-full"></div>
+                                <h1 class="text-3xl font-light text-white tracking-tight">Create Category</h1>
+                            </div>
                             <p class="text-sm text-slate-500 mt-1">Create a new category to organize your sorted images</p>
                         </div>
 
@@ -33,7 +36,7 @@
 
                             <a href="{{ route('categories.index') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-ai-accent hover:bg-indigo-500 text-white text-xs font-medium rounded shadow-[0_0_15px_-5px_rgba(99,102,241,0.5)] transition-all whitespace-nowrap decoration-none">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
                                 </svg>
                                 Back to Categories
                             </a>
@@ -53,8 +56,11 @@
                 </div>
             </section>
 
-            <main class="flex-1 p-5">
-                <section class="p-6 bg-slate-950">
+            <main class="flex-1 mb-10">
+
+                @include('partials.flash')
+
+                <section class="bg-slate-950 mb-10">
                     <form id="create-category-form" action="{{ route('categories.store') }}" method="POST">
                         @csrf
                         <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex flex-col">

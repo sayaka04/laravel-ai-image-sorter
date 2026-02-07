@@ -18,6 +18,8 @@ return new class extends Migration
             $table->text('description')->nullable(); // Nullable because description is optional
 
             $table->timestamps(); // Creates created_at and updated_at
+
+            $table->unique(['user_id', 'album_name']);
         });
     }
 

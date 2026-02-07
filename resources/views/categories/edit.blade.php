@@ -10,7 +10,7 @@
 
 </head>
 
-<body class="bg-gray-50 flex h-screen overflow-hidden">
+<body class="flex h-screen overflow-hidden bg-slate-950 text-slate-400 font-sans">
 
     @include('partials.sidebar')
 
@@ -18,73 +18,125 @@
 
         @include('partials.navbar')
 
-        <main class="flex-1 overflow-y-auto p-6">
+        <div class="flex-1 min-h-0 flex flex-col gap-6 p-4 md:p-6 lg:p-8 overflow-y-auto w-full">
 
             <section>
+                <div class="flex flex-col gap-4 shrink-0">
 
-                <div class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-                    <div class="sm:mx-auto sm:w-full sm:max-w-md">
-                        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                            Edit Category
-                        </h2>
-                    </div>
-
-                    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                        <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-                            <form action="{{ route('categories.update', $category) }}" method="POST" class="space-y-6">
-                                @csrf
-                                @method('PUT')
-
-                                <div>
-                                    <label for="category_name" class="block text-sm font-medium text-gray-700">Category Name</label>
-                                    <div class="mt-1">
-                                        <input type="text" name="category_name" id="category_name"
-                                            value="{{ old('category_name', $category->category_name) }}" required
-                                            class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label for="ai_rules" class="block text-sm font-medium text-gray-700">AI Rules</label>
-                                    <div class="mt-1">
-                                        <textarea id="ai_rules" name="ai_rules" rows="4"
-                                            class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">{{ old('ai_rules', $category->ai_rules) }}</textarea>
-                                    </div>
-                                    <p class="mt-2 text-xs text-gray-500">
-                                        Updating rules won't move existing files, but will affect future uploads.
-                                    </p>
-                                </div>
-
-                                <div class="flex items-center justify-between pt-4">
-                                    <a href="{{ route('albums.show', $category->album_id) }}" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
-                                        &larr; Back to Album
-                                    </a>
-
-                                    <div class="flex space-x-3">
-                                        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
-                                            Save Changes
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-
-                            <div class="mt-6 pt-6 border-t border-gray-200">
-                                <form action="{{ route('categories.destroy', $category) }}" method="POST" onsubmit="return confirm('Delete this category and all files inside?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="w-full flex justify-center py-2 px-4 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50">
-                                        Delete Category
-                                    </button>
-                                </form>
+                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                        <div>
+                            <div class="flex items-center gap-3">
+                                <div class="h-8 w-1 bg-ai-accent shadow-[0_0_10px_var(--neon-primary)] rounded-full"></div>
+                                <h1 class="text-3xl font-light text-white tracking-tight">Edit Category</h1>
                             </div>
+                            <p class="text-sm text-slate-500 mt-1">Edit a new category to organize your sorted images</p>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row gap-3">
+
+                            <a href="{{ route('categories.index') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-ai-accent hover:bg-indigo-500 text-white text-xs font-medium rounded shadow-[0_0_15px_-5px_rgba(99,102,241,0.5)] transition-all whitespace-nowrap decoration-none">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
+                                </svg>
+
+                                Back to Categories
+                            </a>
+
+                            <a href="{{ route('albums.create') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-900 border border-slate-700 hover:border-slate-500 text-white text-xs font-medium rounded transition-all whitespace-nowrap decoration-none">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                Add New Album
+                            </a>
 
                         </div>
                     </div>
-                </div>
 
+                    <div class="h-px w-full bg-slate-800"></div>
+
+                </div>
             </section>
 
-        </main>
+            <main class="flex-1 mb-10">
+
+                @include('partials.flash')
+
+                <section class="bg-slate-950 mb-10">
+                    <form id="edit-category-form" action="{{ route('categories.update', $category) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex flex-col">
+                            <div class="p-5 border-b border-slate-800 bg-slate-950/30">
+                                <h3 class="text-white font-medium">Edit Category</h3>
+                                <p class="text-[11px] text-ai-accent font-mono mt-1 uppercase">AI Logic Configuration</p>
+                            </div>
+
+                            <div class="p-6 space-y-5 flex-1">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-[10px] uppercase font-mono text-slate-500 font-bold mb-2 tracking-wider">Album</label>
+                                        <div class="relative group">
+                                            <select name="album_id" id="album_id" required
+                                                class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-md px-3 py-2.5 outline-none appearance-none cursor-pointer focus:border-ai-accent transition-colors">
+                                                <option value="{{ $category->album->id }}" disabled selected>{{ $category->album->album_name }}</option>
+
+                                            </select>
+                                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-500 group-hover:text-white transition-colors">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] uppercase font-mono text-slate-500 font-bold mb-2 tracking-wider">Category Name</label>
+                                        <input type="text" name="category_name" id="category_name" required
+                                            class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-md px-3 py-2.5 outline-none focus:border-ai-accent transition-colors"
+                                            placeholder="e.g. Receipts" value="{{ $category->category_name }}">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="text-[10px] uppercase font-mono text-ai-accent font-bold tracking-wider block mb-2">AI Sorting Logic</label>
+                                    <textarea id="ai_rules" name="ai_rules" rows="5"
+                                        class="w-full bg-[#050a14] border border-ai-accent/20 text-indigo-100 text-xs font-mono rounded-md p-4 outline-none resize-none leading-relaxed focus:border-ai-accent/50 transition-colors"
+                                        placeholder="Describe what belongs here...">{{ $category->ai_rules }}</textarea>
+                                </div>
+                            </div>
+
+                            <div class="p-6 bg-slate-950/50 border-t border-slate-800 flex justify-center">
+                                <button type="submit" id="update-btn" class="px-10 py-2.5 bg-white hover:bg-slate-200 text-slate-900 rounded-md text-xs font-bold uppercase tracking-widest transition-all shadow-sm flex items-center gap-2">
+                                    <svg id="btn-spinner" class="animate-spin -ml-1 h-4 w-4 text-slate-900 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span id="btn-text">Update</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <script>
+                        document.getElementById('edit-category-form').addEventListener('submit', function(e) {
+                            // 1. Get Elements
+                            const btn = document.getElementById('update-btn');
+                            const spinner = document.getElementById('btn-spinner');
+                            const text = document.getElementById('btn-text');
+
+                            // 2. Disable Button
+                            btn.disabled = true;
+                            btn.classList.add('opacity-75', 'cursor-not-allowed');
+
+                            // 3. Show Spinner & Change Text
+                            spinner.classList.remove('hidden');
+                            text.innerText = 'APPLYING...';
+                        });
+                    </script>
+                </section>
+            </main>
+
+
+        </div>
 
     </div>
 

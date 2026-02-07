@@ -100,8 +100,8 @@
                 </div>
             </section>
 
-            <main class="flex-1 p-5">
-                <section class="p-6 bg-slate-950">
+            <main class="flex-1 mb-10">
+                <section class="bg-slate-950 mb-10">
 
 
 

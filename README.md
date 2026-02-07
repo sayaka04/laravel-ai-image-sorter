@@ -1,59 +1,155 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
+<br>
+<br>
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+<a href="https://github.com/sayaka04/laravel-ai-image-sorter"><img src="https://img.shields.io/badge/SmartSorterAI-Sayaka04-ff0055?style=flat-pill" alt="Build Status" style="height:70px"></a>
 </p>
 
-## About Laravel
+<h3 align="center">Automated Image Sorting with Local Vision Models.</h3>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+<p align="center">
+<a href="https://laravel.com"><img src="https://img.shields.io/badge/Laravel-12-FF2D20?style=for-the-badge&logo=laravel" alt="Laravel"></a>
+<a href="https://tailwindcss."><img src="https://img.shields.io/badge/Tailwind_CSS-3.4.17-38B2AC?style=for-the-badge&logo=tailwind-css" alt="Tailwind"></a>
+<a href="https://ollama.com"><img src="https://img.shields.io/badge/AI-Ollama-blue?style=for-the-badge" alt="Ollma"></a>
+</p>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+SmartSorter AI is a local-first Digital Asset Management (DAM) system designed to automate file organization.
 
-## Learning Laravel
+SmartSorter organizes unstructured images (screenshots, receipts, references) using a two-stage local AI pipeline. Instead of applying generic auto-tags, it sorts files based on specific rules defined by the user. All processing happens locally on the host machine, removing the need for external cloud APIs.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 🏗 System Architecture
 
-## Laravel Sponsors
+The core functionality relies on separating **Visual Perception** from **Logical Reasoning**. A single multimodal model often struggles to classify images into arbitrary, user-specific folders. SmartSorter AI solves this via a two-stage pipeline processed asynchronously via Laravel Queues.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### The Dual-Model Pipeline
 
-### Premium Partners
+1. **Phase 1: The Observer (Vision Extraction)**
+* **Input:** Raw Image Blob.
+* **Process:** The system passes the image to a Vision-Language Model (VLM) via Ollama.
+* **Output:** A verbose textual description of the image, including OCR data, texture analysis, and object detection. No decision is made at this stage; the goal is pure data extraction.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
 
-## Contributing
+2. **Phase 2: The Judge (Semantic Reasoning)**
+* **Input:** The textual description from Phase 1 + User-defined sorting rules (e.g., *"If the receipt is for hardware, put in Expense/Hardware"*).
+* **Process:** A lightweight reasoning model evaluates the textual data against the logic constraints.
+* **Output:** A deterministic folder assignment.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-## Code of Conduct
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## ⚡ Technical Features
 
-## License
+* **Asynchronous Inference:** Image processing is computationally expensive. All uploads are dispatched to `database` queues, preventing HTTP timeouts and allowing for batch processing of heavy workloads.
+* **Data Sovereignty & Isolation:** Files are stored on a private disk using Laravel's storage abstraction. Access is strictly scoped to `Auth::user()->id()`, preventing cross-user data leakage.
+* **Resource Management:** Includes a configurable storage quota system (default: 200MB per user) to manage disk usage in multi-user environments.
+* **Contextual Export:** Generates structured ZIP archives on the fly, mirroring the sorted directory structure.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## 🛠 Technology Stack
+
+| Component | Technology | Description |
+| --- | --- | --- |
+| **Framework** | Laravel 12 (PHP 8.2) | Core MVC and Queue Management |
+| **Inference** | Ollama API | Local LLM/VLM orchestration |
+| **Database** | MySQL | Relational data and Job tables |
+| **Frontend** | Tailwind CSS | Utility-first styling (Slate/Neon palette) |
+| **Workers** | Laravel Queue | Background process management |
+
+---
+
+## 🧠 Workflow Logic
+
+The application enforces a **Definition-First** approach to ensure sorting accuracy:
+
+1. **Create Album:** Initialize a project container (e.g., "March Screenshots").
+2. **Define Rules:** Create destination folders and assign logic prompts *before* uploading.
+* *Example:* Category `Errors` → Rule: *"Screenshots containing stack traces or red console text."*
+
+
+3. **Upload:** Batch upload images (`JPG`, `PNG`, `WEBP`). The system stores the raw files and dispatches jobs to the `vision` queue.
+4. **Background Processing:**
+* **Step A:** The **Observer** job picks up the image and generates a text description.
+* **Step B:** The **Judge** job picks up the description and matches it against the rules defined in Step 2.
+
+
+5. **Validation & Export:** Review the "AI Reasoning" logs to verify the sorting logic, then download the organized structure as a ZIP.
+
+---
+
+## 🔧 Installation & Setup
+
+### Prerequisites
+
+* PHP 8.2+
+* Composer
+* Node.js & NPM
+* [Ollama](https://ollama.com) (Running locally)
+
+### Step-by-Step
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/sayaka04/laravel-ai-image-sorter.git
+cd smartsorter-ai
+
+```
+
+
+2. **Install dependencies**
+```bash
+composer install
+npm install && npm run build
+
+```
+
+
+3. **Environment Configuration**
+```bash
+cp .env.example .env
+php artisan key:generate
+
+```
+
+4. **Run Migrations:**
+```bash
+php artisan migrate
+
+```
+
+5. **Local AI Setup (Ollama):**
+Ensure [Ollama](https://ollama.com) is running locally with your preferred vision model.
+```bash
+ollama serve
+
+```
+
+6. **Run Workers:**
+```bash
+php artisan queue:work --queue="vision"
+php artisan queue:work --queue="text"
+
+```
+
+7. **Run Serve:**
+```bash
+php artisan serve
+
+```
+
+---
+
+## 🛡️ Security
+
+**Storage Access:** Utilizes Laravel's `Storage::disk('private')` driver. Direct file access is blocked; all assets are served via signed URLs or authenticated controller methods.
+
+## 👤 Author
+
+**Sayaka04**
+
+---
+

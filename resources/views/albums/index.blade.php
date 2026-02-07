@@ -42,7 +42,7 @@
                             </a>
                             <a href="{{ route('download.folder') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 text-indigo-300 hover:text-indigo-200 text-xs font-medium rounded transition-all whitespace-nowrap decoration-none">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                                 </svg>
                                 Download All ZIP
                             </a>
@@ -107,8 +107,8 @@
                 </div>
             </section>
 
-            <main class="flex-1 p-5">
-                <section class="p-6 bg-slate-950">
+            <main class="flex-1 mb-10">
+                <section class="bg-slate-950 mb-10">
                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
 
                         <div class="group relative flex flex-col pt-10">
@@ -178,15 +178,15 @@
                                 <div class="grid grid-cols-3 gap-4 mb-6">
                                     <div class="bg-slate-950/50 p-3 rounded-lg border border-slate-800 text-center">
                                         <p class="text-[9px] text-slate-500 uppercase font-black mb-1">Sub Folders</p>
-                                        <p class="text-lg text-white font-mono leading-none">0 <span class="text-[10px] text-indigo-400">DIR</span></p>
+                                        <p class="text-lg text-white font-mono leading-none">{{ $album->folderSize['total_folders'] }} <span class="text-[10px] text-indigo-400">DIR</span></p>
                                     </div>
                                     <div class="bg-slate-950/50 p-3 rounded-lg border border-slate-800 text-center">
                                         <p class="text-[9px] text-slate-500 uppercase font-black mb-1">Files</p>
-                                        <p class="text-lg text-white font-mono leading-none">{{ $album->images_count ?? 0 }} <span class="text-[10px] text-indigo-400">IMG</span></p>
+                                        <p class="text-lg text-white font-mono leading-none">{{ $album->folderSize['total_files'] }} <span class="text-[10px] text-indigo-400">IMG</span></p>
                                     </div>
                                     <div class="bg-slate-950/50 p-3 rounded-lg border border-slate-800 text-center">
                                         <p class="text-[9px] text-slate-500 uppercase font-black mb-1">Size</p>
-                                        <p class="text-lg text-white font-mono leading-none">-- <span class="text-[10px] text-indigo-400">MB</span></p>
+                                        <p class="text-lg text-white font-mono leading-none">{{ round($album->folderSize['size_mb'], 2) }} <span class="text-[10px] text-indigo-400">MB</span></p>
                                     </div>
                                 </div>
 

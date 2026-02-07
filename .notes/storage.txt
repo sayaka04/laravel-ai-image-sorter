@@ -1,3 +1,0 @@
-Storage::disk()->makeDirectory()
-Storage::put()
-$request->file()->store()
