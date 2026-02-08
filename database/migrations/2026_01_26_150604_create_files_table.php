@@ -20,6 +20,8 @@ return new class extends Migration
             $table->json('raw_ai_response')->nullable();
 
             $table->timestamps();
+
+            $table->unique(['category_id', 'file_name']);
         });
     }
 

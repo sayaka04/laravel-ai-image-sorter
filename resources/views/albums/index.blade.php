@@ -109,6 +109,9 @@
 
             <main class="flex-1 mb-10">
                 <section class="bg-slate-950 mb-10">
+
+                    @include('partials.flash')
+
                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
 
                         <div class="group relative flex flex-col pt-10">
@@ -191,14 +194,27 @@
                                 </div>
 
                                 <div class="flex gap-2">
-                                    <button class="flex-1 bg-transparent hover:bg-red-900/20 text-slate-400 hover:text-red-400 text-[11px] font-bold py-2 rounded border border-slate-700 hover:border-red-900 transition-all uppercase tracking-widest">
-                                        Delete
-                                    </button>
 
-                                    <a href="{{ route('albums.show', $album->id) }}" class="flex-[1.5] bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-bold py-2 rounded transition-all shadow-lg shadow-indigo-900/40 uppercase tracking-widest text-center">
+                                    <form action="{{ route('albums.destroy', $album) }}"
+                                        method="POST"
+                                        class="flex-1">
+                                        @csrf
+                                        @method('DELETE')
+
+                                        <button type="submit"
+                                            onclick="return confirm('Are you sure you want to delete this? This cannot be undone.')"
+                                            class="w-full bg-transparent hover:bg-red-900/20 text-slate-400 hover:text-red-400 text-[11px] font-bold py-2 rounded border border-slate-700 hover:border-red-900 transition-all uppercase tracking-widest">
+                                            Delete
+                                        </button>
+                                    </form>
+
+                                    <a href="{{ route('albums.show', $album->id) }}"
+                                        class="flex-[1.5] bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-bold py-2 rounded transition-all shadow-lg shadow-indigo-900/40 uppercase tracking-widest text-center">
                                         Open Album
                                     </a>
+
                                 </div>
+
                             </div>
                         </div>
                         @endforeach

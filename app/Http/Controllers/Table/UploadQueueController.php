@@ -193,18 +193,33 @@ class UploadQueueController extends AIConfig
 
     public function destroy(UploadQueue $uploadQueue)
     {
+
+
         if ($uploadQueue->album->user_id !== request()->user()->id) {
             abort(403);
         }
 
-        // Remove the physical file
-        if (Storage::exists($uploadQueue->file_path)) {
-            Storage::delete($uploadQueue->file_path);
+        if (
+            $uploadQueue->status === UploadStatus::IMAGE_PROCESSING ||
+            $uploadQueue->status === UploadStatus::FINAL_PROCESSING
+        ) {
+            return redirect()->back()
+                ->with('warning', 'Item is already being processed it can\'t be cancelled!');
+        } elseif ($uploadQueue->status === UploadStatus::COMPLETED) {
+            $uploadQueue->delete();
+
+            return redirect()->back()
+                ->with('success', 'Item already completed processing. Queue record deleted!');
+        } else {
+            // Remove the physical file
+            if (Storage::exists($uploadQueue->file_path)) {
+                Storage::delete($uploadQueue->file_path);
+            }
+
+            $uploadQueue->delete();
+
+            return redirect()->back()
+                ->with('success', 'Item removed from queue.');
         }
-
-        $uploadQueue->delete();
-
-        return redirect()->back()
-            ->with('message', 'Item removed from queue.');
     }
 }

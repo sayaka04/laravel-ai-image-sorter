@@ -60,6 +60,8 @@
             <main class="flex-1 mb-10">
                 <section>
 
+                    @include('partials.flash')
+
                     <div class="space-y-6 mb-10">
 
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">

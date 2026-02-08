@@ -49,12 +49,35 @@
                                 </svg>
                                 Edit Album
                             </a>
+
                             <a href="{{ route('download.folder', 'upload_sorted/'.$album->album_name) }}" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 text-indigo-300 hover:text-indigo-200 text-xs font-medium rounded transition-all whitespace-nowrap decoration-none">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                                 </svg>
                                 Download Album ZIP
                             </a>
+
+                            <form action="{{ route('albums.destroy', $album) }}"
+                                method="POST"
+                                class="inline-flex">
+                                @csrf
+                                @method('DELETE')
+
+                                <button type="submit"
+                                    onclick="return confirm('Are you sure you want to delete this? This cannot be undone.')"
+                                    class="inline-flex items-center justify-center gap-2 px-4 py-2
+               bg-red-500/10 hover:bg-red-500/20
+               border border-red-500/20 hover:border-red-500/40
+               text-red-400 hover:text-red-300
+               text-xs font-medium rounded
+               transition-all whitespace-nowrap">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m2 0H7m3-3h4a1 1 0 0 1 1 1v1H9V5a1 1 0 0 1 1-1z" />
+                                    </svg>
+                                    Delete Album
+                                </button>
+                            </form>
                         </div>
                     </div>
 
@@ -105,6 +128,8 @@
 
             <main class="flex-1 mb-10">
                 <section class="bg-slate-950 mb-10">
+
+                    @include('partials.flash')
 
                     @if($album->categories()->exists())
                     <form id="upload-form" action="{{ route('upload_queues.store') }}" method="POST" enctype="multipart/form-data" class="w-full mb-8">

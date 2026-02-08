@@ -103,6 +103,7 @@
             <main class="flex-1 mb-10">
                 <section class="bg-slate-950 mb-10">
 
+                    @include('partials.flash')
 
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
@@ -179,9 +180,19 @@
                                 </div>
                             </div>
 
-                            <button class="w-full py-2 bg-slate-800 hover:bg-red-900/30 text-slate-300 hover:text-red-200 border border-slate-700 hover:border-red-900/50 rounded-md text-[10px] font-bold uppercase tracking-widest transition-all">
-                                Cancel
-                            </button>
+
+
+                            <form action="{{ route('upload_queues.destroy', $queue) }}" method="POST" class="w-full">
+                                @csrf
+                                @method('DELETE')
+
+                                <button type="submit"
+                                    onclick="return confirm('Are you sure you want to cancel this? This cannot be undone.')"
+                                    class="w-full py-2 bg-slate-800 hover:bg-red-900/30 text-slate-300 hover:text-red-200 border border-slate-700 hover:border-red-900/50 rounded-md text-[10px] font-bold uppercase tracking-widest transition-all">
+                                    Cancel
+                                </button>
+
+                            </form>
                         </div>
                         @endforeach
 

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Table;
 
+use App\Enums\UploadStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Album;
+use App\Models\UploadQueue;
 use App\Services\StorageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -200,11 +202,28 @@ class AlbumController extends Controller
             abort(403);
         }
 
+        $hasOngoingQueue = UploadQueue::where('album_id', $album->id)
+            ->whereIn('status', [
+                UploadStatus::IMAGE_PROCESSING,
+                UploadStatus::FINAL_PROCESSING,
+            ])
+            ->exists();
+
+        if ($hasOngoingQueue) {
+            return redirect()->back()->with('warning', 'Can\'t delete this folder while it still has ongoing queues');
+        }
+
         // The DB 'ON DELETE CASCADE' handles the children (categories/files),
         // but we should manually delete physical files if they exist (advanced logic).
         // For now, we just delete the record.
-        $album->delete();
+        $albumPath = 'users/' . Auth::id() . '/upload_sorted/' . $album->album_name;
 
-        return redirect()->back();
+        if (Storage::disk('local')->exists($albumPath)) {
+            Storage::disk('local')->deleteDirectory($albumPath);
+
+            $album->delete();
+        }
+
+        return redirect()->route('albums.index')->with('success', 'Album deleted successfully!');
     }
 }

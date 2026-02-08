@@ -7,10 +7,9 @@
     <title>{{ $title ?? 'SmartSorter AI'}}</title>
 
     @include('partials.assets')
-
 </head>
 
-<body class="bg-gray-50 flex h-screen overflow-hidden">
+<body class="flex h-screen overflow-hidden bg-slate-950 text-slate-400 font-sans">
 
     @include('partials.sidebar')
 
@@ -18,45 +17,114 @@
 
         @include('partials.navbar')
 
-        <main class="flex-1 overflow-y-auto p-6">
+        <div class="flex-1 min-h-0 flex flex-col gap-6 p-4 md:p-6 lg:p-8 overflow-y-auto w-full">
 
             <section>
-                <div class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-                    <div class="sm:mx-auto sm:w-full sm:max-w-md">
-                        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">Edit File Details</h2>
+                <div class="flex flex-col gap-4 shrink-0">
+
+                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                        <div>
+                            <div class="flex items-center gap-3">
+                                <div class="h-8 w-1 bg-ai-accent shadow-[0_0_10px_var(--neon-primary)] rounded-full"></div>
+                                <h1 class="text-3xl font-light text-white tracking-tight">Edit File</h1>
+                            </div>
+                            <p class="text-sm text-slate-500 mt-1">Update your File</p>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <a href="{{ route('albums.index') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-ai-accent hover:bg-indigo-500 text-white text-xs font-medium rounded shadow-[0_0_15px_-5px_rgba(99,102,241,0.5)] transition-all whitespace-nowrap decoration-none">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
+                                </svg>
+                                Back to Albums
+                            </a>
+
+                            <a href="{{ route('categories.index') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-900 border border-slate-700 hover:border-slate-500 text-white text-xs font-medium rounded transition-all whitespace-nowrap decoration-none">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                Add new Category
+                            </a>
+                        </div>
                     </div>
 
-                    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                        <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-                            <form action="{{ route('files.update', $file) }}" method="POST" class="space-y-6">
-                                @csrf
-                                @method('PUT')
+                    <div class="h-px w-full bg-slate-800"></div>
 
-                                <div>
-                                    <label for="file_name" class="block text-sm font-medium text-gray-700">File Name</label>
-                                    <input type="text" name="file_name" id="file_name" value="{{ old('file_name', $file->file_name) }}"
-                                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                                </div>
-
-                                <div>
-                                    <label for="summary" class="block text-sm font-medium text-gray-700">Summary</label>
-                                    <textarea name="summary" id="summary" rows="4"
-                                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">{{ old('summary', $file->summary) }}</textarea>
-                                </div>
-
-                                <div class="flex items-center justify-between">
-                                    <a href="{{ route('files.show', $file) }}" class="text-sm text-gray-600 hover:text-gray-900">Cancel</a>
-                                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
-                                        Save Changes
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                        {{-- Kept empty as per your original layout --}}
                     </div>
                 </div>
             </section>
 
-        </main>
+            <main class="flex-1 mb-10">
+
+                <section class="bg-slate-950 mb-10">
+                    <div class="space-y-6">
+
+                        @include('partials.flash')
+
+                        <div class="flex justify-center">
+                            {{-- Form integrated into your specific card structure --}}
+                            <form id="edit-file-form" action="{{ route('files.update', $file) }}" method="POST" class="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex flex-col">
+                                @csrf
+                                @method('PUT')
+                                <div class="p-5 border-b border-slate-800 bg-slate-950/30">
+                                    <h3 class="text-white font-medium">Edit File</h3>
+                                    <p class="text-[11px] text-slate-500 font-mono mt-1 uppercase">Update your File</p>
+                                </div>
+
+                                <div class="p-6 space-y-5 flex-1">
+                                    <div>
+                                        <label for="file_name" class="block text-[10px] uppercase font-mono text-slate-500 font-bold mb-2 tracking-wider">File Name</label>
+                                        <input type="text"
+                                            id="file_name"
+                                            name="file_name"
+                                            value="{{ $file->file_name }}"
+                                            required
+                                            class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-sm rounded-md px-4 py-2.5 focus:border-ai-accent outline-none"
+                                            placeholder="e.g. January Screenshots">
+
+                                        @error('file_name')
+                                        <p class="text-red-500 text-[10px] mt-1 font-mono uppercase">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="p-6 bg-slate-950/50 border-t border-slate-800 flex justify-center">
+                                    <button type="submit" id="update-btn" class="px-8 py-2.5 bg-white hover:bg-slate-200 text-slate-900 rounded-md text-xs font-bold uppercase tracking-widest transition-all shadow-sm flex items-center gap-2">
+                                        <svg id="btn-spinner" class="animate-spin -ml-1 h-4 w-4 text-slate-900 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        <span id="btn-text">Update File</span>
+                                    </button>
+                                </div>
+                            </form>
+
+                            <script>
+                                document.getElementById('edit-file-form').addEventListener('submit', function(e) {
+                                    // 1. Get Elements
+                                    const btn = document.getElementById('update-btn');
+                                    const spinner = document.getElementById('btn-spinner');
+                                    const text = document.getElementById('btn-text');
+
+                                    // 2. Disable Button immediately
+                                    btn.disabled = true;
+                                    btn.classList.add('opacity-75', 'cursor-not-allowed');
+
+                                    // 3. Show Spinner and Change Text
+                                    spinner.classList.remove('hidden');
+                                    text.innerText = 'CREATING...';
+                                });
+                            </script>
+
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+
+        </div>
 
     </div>
 

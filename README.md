@@ -89,13 +89,15 @@ The application enforces a **Definition-First** approach to ensure sorting accur
 * Composer
 * Node.js & NPM
 * [Ollama](https://ollama.com) (Running locally)
+  * qwen3-vl:4b
+  * llama3.1:latest
 
 ### Step-by-Step
 
 1. **Clone the repository**
 ```bash
 git clone https://github.com/sayaka04/laravel-ai-image-sorter.git
-cd smartsorter-ai
+cd laravel-ai-image-sorter
 
 ```
 
@@ -122,7 +124,11 @@ php artisan migrate
 ```
 
 5. **Local AI Setup (Ollama):**
-Ensure [Ollama](https://ollama.com) is running locally with your preferred vision model.
+Ensure [Ollama](https://ollama.com) is running locally.
+
+Models used:
+* qwen3-vl:4b
+* llama3.1:latest
 ```bash
 ollama serve
 

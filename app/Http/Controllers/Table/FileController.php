@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 
 use App\Models\File;
 use App\Models\Category;
+use App\Services\StorageService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class FileController extends Controller
 {
@@ -131,14 +134,44 @@ class FileController extends Controller
         }
 
         $validated = $request->validate([
-            'file_name' => 'sometimes|string|max:255',
+            'file_name' => [
+                'required',
+                'string',
+                'max:255',
+                // Strict regex for valid folder names
+                'regex:/^[^\/?%*:|"<>\\\\]+$/',
+
+                // COMPOSITE UNIQUE CHECK
+
+                // COMPOSITE UNIQUE CHECK: Enforce unique file name per category
+                Rule::unique('files', 'file_name')
+                    ->where(function ($query) use ($request) {
+                        return $query->where('category_id', $request->file->category->id);
+                    })->ignore($file->id),
+            ],
             'summary' => 'nullable|string', // Added summary editing
         ]);
 
-        $file->update($validated);
+        // $file->update($validated);
 
-        return redirect()->route('files.show', $file)
-            ->with('message', 'File details updated.');
+        // return redirect()->route('files.show', $file)
+        //     ->with('message', 'File details updated.');
+
+        $oldPath = 'users/' . Auth::id() . '/upload_sorted/' . $file->category->album->album_name . '/' . $file->category->category_name . '/' . $file->file_name;
+        $newPath = 'users/' . Auth::id() . '/upload_sorted/' . $file->category->album->album_name . '/' . $file->category->category_name . '/' . $validated['file_name'];;
+        $storageService = new StorageService();
+
+        if ($storageService->renameFolder($oldPath, $newPath)) {
+            $file->update($validated);
+        } else {
+            return redirect()->back()->with([
+                'error' => "Something went wrong with updating this file!"
+            ]);
+        }
+
+        return redirect()->back()->with([
+            'success' => "Update Successful!"
+        ]);
     }
 
     public function destroy(File $file)
@@ -149,14 +182,19 @@ class FileController extends Controller
 
         $categoryId = $file->category_id;
 
+        $filePath = 'users/' . Auth::id() . '/' . $file->file_path;
+
         // Delete physical file
-        if (Storage::exists($file->file_path)) {
-            Storage::delete($file->file_path);
+        if (Storage::disk('local')->exists($filePath)) {
+            Storage::disk('local')->delete($filePath);
+
+            $file->delete();
+
+            return redirect()->route('categories.show', $categoryId)
+                ->with('success', 'File deleted permanently.');
         }
 
-        $file->delete();
-
         return redirect()->route('categories.show', $categoryId)
-            ->with('message', 'File deleted permanently.');
+            ->with('error', 'File not deleted for some reason? File not found in DIR.');
     }
 }
