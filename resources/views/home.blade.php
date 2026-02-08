@@ -27,9 +27,15 @@
                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-600 underline decoration-indigo-500/50">File Utility.</span>
             </h1>
 
-            <p class="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed mb-12">
-                This project handles image organization using <span class="text-white">Local Vision AI</span> and user-defined logic. It avoids cloud dependency by running processing locally, focusing on privacy and deterministic sorting.
-            </p>
+            <div class="text-center">
+                <h2 class="text-2xl md:text-3xl font-bold text-white mb-6">
+                    A Local-First Automated DAM designed for file organization.
+                </h2>
+
+                <p class="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed mb-12">
+                    This application handles image organization using <span class="text-white">Local Vision AI</span> and user-defined logic. It avoids cloud dependency by running processing locally, focusing on privacy and deterministic sorting.
+                </p>
+            </div>
 
             <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
                 <a href="/register" class="w-full sm:w-auto px-10 py-5 bg-indigo-600 text-white font-black rounded-xl hover:bg-indigo-500 transition-all flex items-center justify-center gap-2 uppercase tracking-tighter shadow-lg shadow-indigo-900/20">
