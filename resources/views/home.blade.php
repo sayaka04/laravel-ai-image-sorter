@@ -100,7 +100,7 @@
                         </div>
                         <div>
                             <h4 class="text-xl font-bold text-white mb-2 italic">Phase I: The Observer</h4>
-                            <p class="text-slate-400 leading-relaxed">A local <strong>Vision Model</strong> (LLaVA) analyzes the image to generate a text report of its contents, including objects, text, and overall style.</p>
+                            <p class="text-slate-400 leading-relaxed">A local <strong>Vision Model</strong> analyzes the image to generate a text report of its contents, including objects, text, and overall style.</p>
                         </div>
                     </div>
 
