@@ -169,7 +169,7 @@
 
     <section class="py-24 px-6 text-center border-t border-slate-900">
         <h2 class="text-4xl font-bold text-white mb-6">Technical Implementation</h2>
-        <p class="text-slate-400 mb-10 max-w-xl mx-auto italic">Built with Laravel 11 and integrated with the Ollama API for high-performance, local-first artificial intelligence.</p>
+        <p class="text-slate-400 mb-10 max-w-xl mx-auto italic">Built with Laravel 12 and integrated with the Ollama API for high-performance, local-first artificial intelligence.</p>
 
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a href="https://github.com" class="px-8 py-4 bg-white text-slate-950 font-bold rounded-xl hover:bg-slate-200 hover:scale-105 transition-all flex items-center justify-center gap-2">
